@@ -9,6 +9,7 @@ import at.petrak.hexcasting.api.casting.eval.vm.CastingImage
 import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.mishaps.MishapNotEnoughArgs
+import at.petrak.hexcasting.api.casting.mishaps.MishapNotEnoughMedia
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import net.minecraft.nbt.CompoundTag
 
@@ -40,13 +41,20 @@ interface VarargConstMediaAction : Action {
         val argc = this.argc(stack.asReversed())
         if (argc > stack.size)
             throw MishapNotEnoughArgs(argc, stack.size)
+
+        if (env.extractMedia(this.mediaCost, true) > 0) {
+            throw MishapNotEnoughMedia(this.mediaCost)
+        }
+
         val args = stack.takeLast(argc)
         repeat(argc) { stack.removeLast() }
         val userData = image.userData.copy()
         val newData = this.executeWithOpCount(args, argc, userData, env)
         stack.addAll(newData.resultStack)
 
-        val sideEffects = mutableListOf<OperatorSideEffect>(OperatorSideEffect.ConsumeMedia(this.mediaCost))
+        val sideEffects = mutableListOf<OperatorSideEffect>(
+            OperatorSideEffect.ConsumeMedia(this.mediaCost)
+        )
 
         val image2 = image.copy(stack = stack, opsConsumed = image.opsConsumed + newData.opCount, userData = userData)
         return OperationResult(image2, sideEffects, continuation, HexEvalSounds.NORMAL_EXECUTE)

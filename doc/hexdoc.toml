@@ -2,7 +2,7 @@
 modid = "hexal"
 book = "hexcasting:thehexbook"
 default_lang = "en_us"
-default_branch = "remaint"
+default_branch = "main"
 
 resource_dirs = [  # top takes priority
     "resources",

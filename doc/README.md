@@ -33,7 +33,7 @@ pip install -e .[dev]
 For local testing, create a file called `.env` in the repo root following this template:
 ```sh
 GITHUB_REPOSITORY=vgskye/Hexal
-GITHUB_SHA=remaint
+GITHUB_SHA=main
 GITHUB_PAGES_URL=https://hexal.hexcast.ing
 ```
 

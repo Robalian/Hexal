@@ -56,6 +56,20 @@ object OpMakeMote : VarargSpellAction {
                         ?: throw MishapNoBoundStorage()
         } else null
 
+        if (!itemStack.isEmpty) {
+            if (mote != null) {
+                if (!mote.typeMatches(itemStack))
+                    throw MishapInvalidIota.of(mote, 0, "cant_combine_motes")
+            } else {
+                if (storage == null)
+                    throw MishapNoBoundStorage()
+                if (!MediafiedItemManager.isStorageLoaded(storage))
+                    throw MishapNoBoundStorage("storage_unloaded")
+                if (MediafiedItemManager.isStorageFull(storage) != false) // if this is somehow null we should still throw an error here, things have gone pretty wrong
+                    throw MishapStorageFull(storage)
+            }
+        }
+
         return SpellAction.Result(
             Spell(itemStack, iEtityEither, mote, storage),
             HexalConfig.server.makeItemCost,
@@ -68,13 +82,13 @@ object OpMakeMote : VarargSpellAction {
             throw IllegalStateException("call cast(env, image) instead.")
         }
 
-        override fun cast(env: CastingEnvironment, image: CastingImage): CastingImage {
+        override fun cast(env: CastingEnvironment, image: CastingImage): CastingImage? {
             val stack = image.stack.toMutableList()
 
             if (!itemStack.isEmpty) {
                 if (mote != null) {
                     if (!mote.typeMatches(itemStack))
-                        throw MishapInvalidIota.of(mote, 0, "cant_combine_motes")
+                        return null // FAILSAFE: just. don't do anything, this is better than crashing
                     val countRemaining = mote.absorb(itemStack)
                     if (countRemaining == 0)
                         iEntityEither.map( { it.discard() }, { it.item = ItemStack.EMPTY } )
@@ -82,11 +96,11 @@ object OpMakeMote : VarargSpellAction {
                         iEntityEither.map( { it.item.count = countRemaining }, { it.item.count = countRemaining } )
                     stack.add(mote)
                 } else {
-                    val storage = storage ?: throw MishapNoBoundStorage()
+                    val storage = storage ?: return null // FAILSAFE: just. don't do anything, this is better than crashing
                     if (!MediafiedItemManager.isStorageLoaded(storage))
-                        throw MishapNoBoundStorage("storage_unloaded")
+                        return null // FAILSAFE: just. don't do anything, this is better than crashing
                     if (MediafiedItemManager.isStorageFull(storage) != false) // if this is somehow null we should still throw an error here, things have gone pretty wrong
-                        throw MishapStorageFull(storage)
+                        return null // FAILSAFE: just. don't do anything, this is better than crashing
 
                     val itemIota = itemStack.asActionResult(storage)[0]
 

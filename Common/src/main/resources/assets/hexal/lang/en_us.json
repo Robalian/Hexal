@@ -64,7 +64,6 @@
   "hexcasting.action.hexal:zone_entity/not_type": "Zone Exaltation: Not-Type",
 
   "hexcasting.action.hexal:current_tick": "Timekeeper's Reflection",
-  "hexcasting.action.hexal:remaining_evals": "Thanatos' Reflection",
   "hexcasting.action.hexal:breath": "Diver's Purification",
   "hexcasting.action.hexal:health": "Nurse's Purification",
   "hexcasting.action.hexal:armour": "Squire's Purification",
@@ -183,7 +182,6 @@
 
   "hexal.entry.hexal_basics": "Hexal Basic Patterns",
   "hexal.page.hexal_basics.current_tick": "Adds a number to the stack which seems to be related to how Nature represents time; If I cast the pattern, then cast the same pattern a second later, the number it adds has increased by 20.",
-  "hexal.page.hexal_basics.remaining_evals": "Adds the number of evaluations a hex is still capable of to the stack. This is reduced by $(l:patterns/meta#hexcasting:eval)$(action)Hermes' Gambit/$ and $(l:patterns/meta#hexcasting:for_each)$(action)Thoth's Gambit/$.",
   "hexal.page.hexal_basics.breath": "Removes a Living entity from the stack and returns how much breath it has left (i.e., how close it is to drowning).",
   "hexal.page.hexal_basics.health": "Removes a Living entity from the stack and returns how much health it has left (i.e., how close it is to dying).",
   "hexal.page.hexal_basics.armour": "Removes a Living entity from the stack and returns how much armour it has.",
@@ -260,7 +258,7 @@
   "hexal.page.gates.2": "Drifting Gates are not bound at all, and can be used to send entities anywhere, however they lose efficiency as a result, and can only send entities to places that are in my ambit. When a gate is burnt in I will obtain on my stack a reference to that gate. With that gate reference, I can mark entities with that gate, and I can close the gate, which sends all entities marked with that gate to the gate's destination. Note that closing a gate doesn't use it up; once I have acquired a gate iota I can use it in perpetuity.",
   "hexal.page.gates.gate/make": "Adds a new gate iota to the stack. Any copy of this iota will point to the same numbered gate. Costs 32 $(l:items/amethyst)$(item)Charged Amethyst/$. If passed null, makes a Drifting Gate. If passed a vector, makes a Location Anchored Gate, If passed a vector and an entity, makes an Entity Anchored Gate.",
   "hexal.page.gates.gate/mark": "Consumes a gate iota and an entity. Marks that entity to be teleported the next time that gate is closed. Costs one twentieth of an $(l:items/amethyst)$(item)Amethyst Dust/$.",
-  "hexal.page.gates.gate/unmark": "Consumes a gate iota and an entity. Unmarks that entity so that if it was marked with $(l:patterns/spells/gates#hexal:gate/mark)$(action) Gate's Opening/$ it will no longer be teleported the next time that gate is closed.",
+  "hexal.page.gates.gate/unmark": "Consumes a gate iota and an entity. Unmarks that entity so that if it was marked with $(l:patterns/great_spells/gates#hexal:gate/mark)$(action) Gate's Opening/$ it will no longer be teleported the next time that gate is closed.",
   "hexal.page.gates.gate/mark/num/get": "Consumes a gate iota, returns how many entities are marked by that gate.",
   "hexal.page.gates.gate/mark/get": "Consumes a gate iota and an entity, returns whether that entity is marked by that gate.",
   "hexal.page.gates.gate/close": "Consumes a non-drifing gate iota, or a drifting gate iota and a position. Transports all the entities marked with the passed gate to the stored or given position, as relevant. Costs half an $(l:items/amethyst)$(item)Amethyst Shard/$, plus an $(l:items/amethyst)$(item)Amethyst Dust/$ per metre transported per entity, if the gate was drifting.",

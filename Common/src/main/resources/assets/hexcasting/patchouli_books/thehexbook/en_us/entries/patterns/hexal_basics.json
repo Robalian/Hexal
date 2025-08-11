@@ -2,7 +2,7 @@
   "name": "hexal.entry.hexal_basics",
   "category": "hexcasting:patterns",
   "icon": "minecraft:wooden_shovel",
-  "sortnum": 0.5,
+  "sortnum": 0,
   "advancement": "hexcasting:root",
   "read_by_default": true,
   "pages": [
@@ -13,14 +13,6 @@
       "input": "",
       "output": "number",
       "text": "hexal.page.hexal_basics.current_tick"
-    },
-    {
-      "type": "hexcasting:pattern",
-      "op_id": "hexal:remaining_evals",
-      "anchor": "hexal:remaining_evals",
-      "input": "",
-      "output": "number",
-      "text": "hexal.page.hexal_basics.remaining_evals"
     },
     {
       "type": "hexcasting:pattern",

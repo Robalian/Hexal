@@ -28,7 +28,7 @@ include = [
 
 [template.args]
 mod_name = "Hexal"
-author = "vgskye"
+author = "FallingColors"
 show_landing_text = false
 
 [textures]

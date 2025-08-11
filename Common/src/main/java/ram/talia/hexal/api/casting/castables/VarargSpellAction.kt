@@ -9,6 +9,7 @@ import at.petrak.hexcasting.api.casting.eval.vm.CastingImage
 import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.mishaps.MishapNotEnoughArgs
+import at.petrak.hexcasting.api.casting.mishaps.MishapNotEnoughMedia
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import net.minecraft.nbt.CompoundTag
 
@@ -54,6 +55,10 @@ interface VarargSpellAction : Action {
         val result = this.executeWithUserdata(args, argc, env, userDataMut)
 
         val sideEffects = mutableListOf<OperatorSideEffect>()
+
+        if (env.extractMedia(result.cost, true) > 0) {
+            throw MishapNotEnoughMedia(result.cost)
+        }
 
         if (result.cost > 0)
             sideEffects.add(OperatorSideEffect.ConsumeMedia(result.cost))

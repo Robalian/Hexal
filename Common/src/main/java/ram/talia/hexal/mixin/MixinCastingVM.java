@@ -52,7 +52,7 @@ public abstract class MixinCastingVM {
 		// (meaning you can get a copy of the pattern to mark it as not a macro again)
 		if (!(env instanceof StaffCastEnv))
 			return;
-		if (escapeNext) // TODO: Add back in check if caster is enlightened
+		if (escapeNext || !env.isEnlightened())
 			toExecute = new ArrayList<>(Collections.singleton(iota));
 		else if (iota.getType() != HexIotaTypes.PATTERN
 						 || ((PatternIota) iota).getPattern().sigsEqual(HexPattern.fromAngles("qqqaw", HexDir.EAST))) // hacky, make it so people can't lock themselves

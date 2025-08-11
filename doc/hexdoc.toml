@@ -19,7 +19,7 @@ resource_dirs = [  # top takes priority
 export_dir = "src/hexdoc_hexal/_export/generated"
 
 [template]
-icon = "icon.png"
+icon = "../art/logo.png"
 include = [
     "hexal",
     "hexcasting",

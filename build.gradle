@@ -162,6 +162,13 @@ subprojects {
     sourcesJar {
         duplicatesStrategy 'exclude'
     }
+
+    // https://stackoverflow.com/a/20359498
+    test {
+        testLogging {
+            events "passed", "skipped", "failed", "standardOut", "standardError"
+        }
+    }
 }
 
 allprojects {

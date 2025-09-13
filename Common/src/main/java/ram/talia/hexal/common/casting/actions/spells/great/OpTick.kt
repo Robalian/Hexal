@@ -57,6 +57,7 @@ object OpTick : SpellAction {
             val userData = image.userData.copy()
             val timesTickedMap = userData.getCompound(TAG_TIMES_TICKED)
             timesTickedMap.putInt(pos.toShortString(), timesTickedMap.getInt(pos.toShortString()) + 1)
+            userData.put(TAG_TIMES_TICKED, timesTickedMap)
             val newImage = image.copy(userData = userData)
 
             // https://github.com/haoict/time-in-a-bottle/blob/1.19/src/main/java/com/haoict/tiab/entities/TimeAcceleratorEntity.java

@@ -1,8 +1,6 @@
 plugins {
     id 'fabric-loom' version "$loomVersion"
-    id "com.modrinth.minotaur" version "2.+"
-    // It's safest to have this on 2.+ to get the latest features and
-    // bug fixes without having to worry about breaking changes.
+    id 'hexal.platform'
 }
 
 archivesBaseName = getArtifactID("fabric")
@@ -164,6 +162,7 @@ build {
     dependsOn ciArtifacts
 }
 
+/*
 modrinth {
     token = System.env.MODRINTH_TOKEN
     projectId = "$modID" // This can be the project ID or the slug. Either will work!
@@ -186,6 +185,26 @@ modrinth {
         required.project "cardinal-components-api"
         required.project "geckolib"
     }
+}
+ */
+
+hexalModDependencies {
+    requires("fabric-api")
+    requires("fabric-language-kotlin")
+    requires("cardinal-components-api")
+    requires("patchouli")
+    requires("cloth-config")
+    requires("paucal")
+    requires(curseforge: "hexcasting", modrinth: "hex-casting")
+    requires("moreiotas")
+    requires("geckolib")
+
+    optional("modmenu")
+    optional("pehkui")
+}
+
+publishMods {
+    file = remapJar.archiveFile
 }
 
 setupJar(this)

@@ -1,6 +1,5 @@
 package ram.talia.hexal.common.network
 
-import at.petrak.hexcasting.api.utils.asByteArray
 import at.petrak.hexcasting.common.msgs.IMessage
 import io.netty.buffer.ByteBuf
 import net.minecraft.nbt.NbtIo
@@ -13,8 +12,6 @@ import ram.talia.hexal.api.everbook.Everbook
 import ram.talia.hexal.xplat.IXplatAbstractions
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 
 data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 	override fun serialize(buf: FriendlyByteBuf) {

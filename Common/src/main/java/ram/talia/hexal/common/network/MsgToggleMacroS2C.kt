@@ -30,6 +30,7 @@ class MsgToggleMacroS2C(val key: HexPattern) : IMessage {
 		fun handle(self: MsgToggleMacroS2C) {
 			Minecraft.getInstance().execute {
 				IClientXplatAbstractions.INSTANCE.toggleClientEverbookMacro(self.key)
+				IClientXplatAbstractions.INSTANCE.saveEverbook()
 			}
 		}
 	}

@@ -33,6 +33,7 @@ data class MsgRemoveEverbookS2C(val key: HexPattern) : IMessage {
 		fun handle(self: MsgRemoveEverbookS2C) {
 			Minecraft.getInstance().execute {
 				IClientXplatAbstractions.INSTANCE.removeClientEverbookIota(self.key)
+				IClientXplatAbstractions.INSTANCE.saveEverbook()
 			}
 		}
 	}

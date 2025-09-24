@@ -32,6 +32,7 @@ data class MsgSetEverbookS2C(val key: HexPattern, val iota: CompoundTag) : IMess
 		fun handle(self: MsgSetEverbookS2C) {
 			Minecraft.getInstance().execute {
 				IClientXplatAbstractions.INSTANCE.setClientEverbookIota(self.key, self.iota)
+				IClientXplatAbstractions.INSTANCE.saveEverbook()
 			}
 		}
 	}

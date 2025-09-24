@@ -44,10 +44,7 @@ class Everbook(val uuid: UUID, private val entries: MutableMap<String, Pair<HexP
 	}
 
 	fun setIota(key: HexPattern, iota: Iota) {
-		entries[getKey(key)] = Pair(key, IotaType.serialize(iota))
-
-		if (macroHolder.isMacro(key))
-			macroHolder.recalcMacros()
+		this.setIota(key, IotaType.serialize(iota))
 	}
 
 	fun setIota(key: HexPattern, iota: CompoundTag) {
@@ -125,6 +122,7 @@ class Everbook(val uuid: UUID, private val entries: MutableMap<String, Pair<HexP
 	 * overwriting the oldest if 6 or more exist.
 	 */
 	fun saveToDisk() {
+		HexalAPI.LOGGER.info("Saving everbook.")
 		// has to be here rather than an instance variable so that it doesn't try to access Minecraft on the server thread.
 		val MINECRAFT_PATH = Minecraft.getInstance().gameDirectory.toPath()
 		val everbookPath = MINECRAFT_PATH.resolve("everbook/everbook-$uuid.dat")

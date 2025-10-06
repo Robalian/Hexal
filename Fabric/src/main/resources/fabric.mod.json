@@ -57,7 +57,7 @@
     "cloth-config": "11.1.x",
     "paucal": ">=0.6.0-pre-118",
     "hexcasting": ">=0.11.1-6",
-    "moreiotas": ">=0.1.0-2",
+    "moreiotas": ">=0.1.1",
     "geckolib": ">=4.2.1"
   },
   "suggests": {

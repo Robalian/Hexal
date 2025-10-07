@@ -137,11 +137,6 @@ repositories {
     // Put repositories for dependencies here
     // ForgeGradle automatically adds the Forge maven and Maven Central for you
 
-    // If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
-     flatDir {
-         dir 'libs'
-     }
-
     maven {
         // location of the maven that hosts JEI files
         name = "Progwml6 maven"
@@ -177,8 +172,8 @@ dependencies {
     runtimeOnly fg.deobf("at.petra-k.paucal:paucal-forge-$minecraftVersion:$paucalVersion")
     compileOnly fg.deobf("at.petra-k.hexcasting:hexcasting-forge-$minecraftVersion:$hexcastingVersion")
     runtimeOnly fg.deobf("at.petra-k.hexcasting:hexcasting-forge-$minecraftVersion:$hexcastingVersion")
-    compileOnly fg.deobf("$modID:moreiotas-forge-$minecraftVersion:$moreIotasVersion")
-    runtimeOnly fg.deobf("$modID:moreiotas-forge-$minecraftVersion:$moreIotasVersion")
+    compileOnly(fg.deobf("ram.talia.moreiotas:moreiotas-forge-$minecraftVersion:$moreIotasVersion") { transitive = false })
+    runtimeOnly(fg.deobf("ram.talia.moreiotas:moreiotas-forge-$minecraftVersion:$moreIotasVersion") { transitive = false })
 
     compileOnly fg.deobf("vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FORGE-SNAPSHOT")
     runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FORGE-SNAPSHOT")
@@ -207,8 +202,8 @@ dependencies {
     testRuntimeOnly fg.deobf("at.petra-k.paucal:paucal-forge-$minecraftVersion:$paucalVersion")
     testCompileOnly fg.deobf("at.petra-k.hexcasting:hexcasting-forge-$minecraftVersion:$hexcastingVersion")
     testRuntimeOnly fg.deobf("at.petra-k.hexcasting:hexcasting-forge-$minecraftVersion:$hexcastingVersion")
-    testCompileOnly fg.deobf("$modID:moreiotas-forge-$minecraftVersion:$moreIotasVersion")
-    testRuntimeOnly fg.deobf("$modID:moreiotas-forge-$minecraftVersion:$moreIotasVersion")
+    testCompileOnly(fg.deobf("ram.talia.moreiotas:moreiotas-forge-$minecraftVersion:$moreIotasVersion") { transitive = false })
+    testRuntimeOnly(fg.deobf("ram.talia.moreiotas:moreiotas-forge-$minecraftVersion:$moreIotasVersion") { transitive = false })
     testCompileOnly fg.deobf("vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FORGE-SNAPSHOT")
     testRuntimeOnly fg.deobf("vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FORGE-SNAPSHOT")
 

@@ -81,7 +81,7 @@ dependencies {
     modImplementation("at.petra-k.hexcasting:hexcasting-fabric-$minecraftVersion:$hexcastingVersion") {
         exclude module: "phosphor"
     }
-    modImplementation "$modID:moreiotas-fabric-$minecraftVersion:$moreIotasVersion"
+    modImplementation "ram.talia.moreiotas:moreiotas-fabric-$minecraftVersion:$moreIotasVersion"
     modImplementation "vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FABRIC-SNAPSHOT"
     modImplementation "com.samsthenerd.inline:inline-fabric:$minecraftVersion-$inlineVersion"
 

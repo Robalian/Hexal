@@ -52,7 +52,11 @@ void setupJar(Object project) {
 
         repositories {
             maven {
-                url "file://" + System.getenv("local_maven")
+                url = 'https://pkgs.dev.azure.com/hexxy-media/artifacts/_packaging/community/maven/v1'
+                credentials {
+                    username = 'hexxy-media'
+                    password = System.getenv('MAVEN_PASSWORD')
+                }
             }
         }
     }

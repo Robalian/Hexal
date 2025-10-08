@@ -146,8 +146,7 @@ fun ByteArray.decompressToNBT() : CompoundTag {
 	try {
 		return NbtIo.readCompressed(ByteArrayInputStream(this))
 	} catch (exception : IOException){
-		HexalAPI.LOGGER.error("Could not decompress byte array.")
-		exception.printStackTrace()
+		HexalAPI.LOGGER.error("Could not decompress byte array.", exception)
 		return CompoundTag()
 	}
 }

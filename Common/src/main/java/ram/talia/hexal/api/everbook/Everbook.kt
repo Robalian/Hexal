@@ -200,7 +200,7 @@ class Everbook(val uuid: UUID, private val entries: MutableMap<String, Pair<HexP
 
 		@JvmStatic
 		fun notifyModification(){
-			modificationTimestamp = Minecraft.getInstance().level!!.gameTime
+			modificationTimestamp = Minecraft.getInstance().level?.gameTime
 		}
 
 		@JvmStatic

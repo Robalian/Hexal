@@ -76,9 +76,11 @@ public abstract class MixinCastingVM {
 		else {
 			HexPattern pattern = ((PatternIota) iota).getPattern();
 			toExecute = IXplatAbstractions.INSTANCE.getEverbookMacro(env.getCaster(), pattern);
-			if (toExecute == null)
+			if (toExecute == null) {
 				toExecute = new ArrayList<>(Collections.singleton(iota));
-			else isExecutingMacro = true;
+			} else {
+			    isExecutingMacro = true;
+			}
 		}
 		image.getUserData().putBoolean(TAG_USINGMACRO, isExecutingMacro);
 

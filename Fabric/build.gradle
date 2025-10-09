@@ -14,10 +14,12 @@ loom {
         client {
             client()
             setConfigName("Fabric Client")
+            runDir "run"
         }
         server {
             server()
             setConfigName("Fabric Server")
+            runDir "runServer"
         }
         datagen {
             client()
@@ -27,7 +29,6 @@ loom {
         }
 
         configureEach {
-            runDir "Fabric/run"
             ideConfigGenerated(true)
         }
     }

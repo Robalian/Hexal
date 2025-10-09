@@ -211,7 +211,7 @@ class Everbook(val uuid: UUID, private val entries: MutableMap<String, Pair<HexP
 		fun checkSaveTime(){
 			try {
 				val time = Minecraft.getInstance().level!!.gameTime
-				if (modificationTimestamp != null && time >= (modificationTimestamp!! + HexalConfig.client.everbookSaveDelay)){
+				if (modificationTimestamp?.let { time >= (it + HexalConfig.client.everbookSaveDelay) } == true){
 					IClientXplatAbstractions.INSTANCE.saveEverbook()
 				}
 			} catch (_ : Exception){

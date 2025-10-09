@@ -20,6 +20,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.contents.LiteralContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -112,11 +114,15 @@ public abstract class MixinCastingVM {
 		var ret = harness.queueExecuteAndWrapIotas(toExecute, world);
 		if (isExecutingMacro){
 			Vec3 soundPos = env.getCaster().position();
+			SoundEvent sound = HexSounds.ADD_TO_PATTERN; //I don't think this will ever actually be played, but might as well have it be something that isn't completely out of place
+			float pitch = 1f;
 			if (ret.getResolutionType() == ResolvedPatternType.EVALUATED) {
-				env.getWorld().playSound((Player) null, soundPos.x, soundPos.y, soundPos.z, HexSounds.CAST_SPELL, SoundSource.PLAYERS, 1f, 0.9f);
+				sound = HexSounds.CAST_SPELL;
+				pitch = 0.9f;
 			} else if (ret.getResolutionType() == ResolvedPatternType.ESCAPED){
-				env.getWorld().playSound((Player) null, soundPos.x, soundPos.y, soundPos.z, HexSounds.CAST_NORMAL, SoundSource.PLAYERS, 1f, 1f);
+				sound = HexSounds.CAST_NORMAL;
 			}
+			env.getWorld().playSound((Player) null, soundPos.x, soundPos.y, soundPos.z, sound, SoundSource.PLAYERS, 1f, pitch);
 		}
 		transmittingTo = IXplatAbstractions.INSTANCE.getPlayerTransmittingTo(env.getCaster());
 		transmitting = transmittingTo != null;

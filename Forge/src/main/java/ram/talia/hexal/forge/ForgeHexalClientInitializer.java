@@ -5,6 +5,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -27,7 +28,9 @@ public class ForgeHexalClientInitializer {
 
 		if (FMLEnvironment.dist == Dist.CLIENT && !FMLLoader.getLaunchHandler().isData())
 			cursedItemPropertiesNonsense();
-		KotlinModLoadingContext.Companion.get().getKEventBus().addListener((TickEvent tickEvent)-> Everbook.checkSaveTime());
+		MinecraftForge.EVENT_BUS.addListener((TickEvent tickEvent)-> {
+			Everbook.checkSaveTime();
+		});
 	}
 
 	@OnlyIn(Dist.CLIENT)

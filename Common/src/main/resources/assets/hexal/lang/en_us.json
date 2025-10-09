@@ -389,6 +389,9 @@
   "text.autoconfig.hexal.option.server.itemSpells.maxRecordsInMediafiedStorage.@Tooltip[0]": "Maximum number of records that can be stored in a Mote Nexus.",
   "text.autoconfig.hexal.option.server.itemSpells.maxRecordsInMediafiedStorage.@Tooltip[1]": "Bounded from 128 to 16,384.",
 
+  "text.autoconfig.hexal.option.client.miscValues": "Miscellaneous Values",
+  "text.autoconfig.hexal.option.client.miscValues.everbookSaveDelay": "Ticks the client waits after an everbook modification until saving it to disk",
+
 
   "text.autoconfig.hexal.option.server.greatSpells": "Great Spells",
   "text.autoconfig.hexal.option.server.greatSpells.consumeWispOwnCost": "Consume Own Wisp Cost",

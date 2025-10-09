@@ -12,6 +12,7 @@ import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerLevel
 import ram.talia.hexal.api.HexalAPI
 import ram.talia.hexal.api.casting.mishaps.MishapIllegalInterworldIota
+import ram.talia.hexal.api.config.HexalConfig
 import ram.talia.hexal.xplat.IClientXplatAbstractions
 import java.lang.Exception
 import java.nio.file.Files
@@ -124,7 +125,7 @@ class Everbook(val uuid: UUID, private val entries: MutableMap<String, Pair<HexP
 	 * overwriting the oldest if 6 or more exist.
 	 */
 	fun saveToDisk() {
-		modificationTimestamp = -1L
+		modificationTimestamp = null
 		HexalAPI.LOGGER.info("Saving everbook.")
 		// has to be here rather than an instance variable so that it doesn't try to access Minecraft on the server thread.
 		val MINECRAFT_PATH = Minecraft.getInstance().gameDirectory.toPath()
@@ -161,7 +162,7 @@ class Everbook(val uuid: UUID, private val entries: MutableMap<String, Pair<HexP
 		const val TAG_PATTERN = "pattern"
 		const val TAG_IOTA = "iota"
 
-		private var modificationTimestamp = -1L
+		private var modificationTimestamp : Long? = null
 
 		@JvmStatic
 		fun fromNbt(tag: CompoundTag): Everbook {
@@ -210,7 +211,7 @@ class Everbook(val uuid: UUID, private val entries: MutableMap<String, Pair<HexP
 		fun checkSaveTime(){
 			try {
 				val time = Minecraft.getInstance().level!!.gameTime
-				if (modificationTimestamp != -1L && time >= (modificationTimestamp + 200 /*ten seconds*/)){
+				if (modificationTimestamp != null && time >= (modificationTimestamp!! + HexalConfig.client.everbookSaveDelay)){
 					IClientXplatAbstractions.INSTANCE.saveEverbook()
 				}
 			} catch (_ : Exception){

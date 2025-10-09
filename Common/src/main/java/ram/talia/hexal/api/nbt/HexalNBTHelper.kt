@@ -8,12 +8,17 @@ import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.IntTag
 import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtUtils
 import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
+import ram.talia.hexal.api.HexalAPI
 import ram.talia.hexal.api.linkable.ILinkable
 import ram.talia.hexal.api.linkable.LinkableRegistry
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.util.*
 
 fun ListTag.toIotaList(level: ServerLevel): MutableList<Iota> {
@@ -129,4 +134,19 @@ fun ListTag.toIRenderCentreMap(level: ClientLevel): Map<CompoundTag, ILinkable.I
 	}
 
 	return out
+}
+
+fun CompoundTag.toCompressedBytes() : ByteArray {
+	val out : ByteArrayOutputStream = ByteArrayOutputStream()
+	NbtIo.writeCompressed(this, out)
+	return out.toByteArray()
+}
+
+fun ByteArray.decompressToNBT() : CompoundTag {
+	try {
+		return NbtIo.readCompressed(ByteArrayInputStream(this))
+	} catch (exception : IOException){
+		HexalAPI.LOGGER.error("Could not decompress byte array.", exception)
+		return CompoundTag()
+	}
 }

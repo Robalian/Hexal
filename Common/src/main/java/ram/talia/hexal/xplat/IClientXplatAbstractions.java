@@ -63,6 +63,8 @@ public interface IClientXplatAbstractions {
 	 * Returns true if the Everbook entry at the given key is a macro, and false otherwise.
 	 */
 	boolean isClientEverbookMacro(HexPattern key);
+
+	void saveEverbook();
 	
 	// On Forge, these are already exposed; on Fabric we do a mixin
 	void setFilterSave(AbstractTexture texture, boolean filter, boolean mipmap);

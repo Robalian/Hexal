@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import ram.talia.hexal.api.HexalAPI
+import ram.talia.hexal.api.everbook.Everbook
 import ram.talia.hexal.xplat.IClientXplatAbstractions
 
 data class MsgSetEverbookS2C(val key: HexPattern, val iota: CompoundTag) : IMessage {
@@ -32,6 +33,7 @@ data class MsgSetEverbookS2C(val key: HexPattern, val iota: CompoundTag) : IMess
 		fun handle(self: MsgSetEverbookS2C) {
 			Minecraft.getInstance().execute {
 				IClientXplatAbstractions.INSTANCE.setClientEverbookIota(self.key, self.iota)
+				Everbook.notifyModification()
 			}
 		}
 	}

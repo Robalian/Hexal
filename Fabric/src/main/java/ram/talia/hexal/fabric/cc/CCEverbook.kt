@@ -78,6 +78,8 @@ class CCEverbook(private val player: Player) : AutoSyncedComponent, ClientTickin
 
 	fun getClientPattern(index: Int) = everbook?.getKey(index)
 
+	fun saveToDisk() = everbook?.saveToDisk()
+
 	//region read/write Nbt (unused)
 	/**
 	 * Data stored on the client rather than the server

@@ -95,7 +95,12 @@ public class ForgeClientXplatImpl implements IClientXplatAbstractions {
 	public boolean isClientEverbookMacro (HexPattern key) {
 		return EverbookEventHandler.localEverbook.isMacro(key);
 	}
-	
+
+	@Override
+	public void saveEverbook() {
+		EverbookEventHandler.localEverbook.saveToDisk();
+	}
+
 	@Override
 	public void setFilterSave (AbstractTexture texture, boolean filter, boolean mipmap) {
 		texture.setBlurMipmap(filter, mipmap);

@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
+import ram.talia.hexal.api.everbook.Everbook
 import ram.talia.hexal.client.LinkablePacketHolder
 import ram.talia.hexal.client.RegisterClientStuff
 import ram.talia.hexal.common.lib.HexalBlockEntities
@@ -18,7 +19,10 @@ object FabricHexalClientInitializer : ClientModInitializer {
         FabricPacketHandler.initClientBound()
 
         // reattempt link render packets that failed to apply properly once every 20 ticks.
-        ClientTickEvents.START_CLIENT_TICK.register { LinkablePacketHolder.maybeRetry() }
+        ClientTickEvents.START_CLIENT_TICK.register {
+            LinkablePacketHolder.maybeRetry()
+            Everbook.checkSaveTime()
+        }
 
         RegisterClientStuff.init()
 

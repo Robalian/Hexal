@@ -141,15 +141,12 @@ jobs:
 
   publish-docs:
     if: inputs.publish_hexdoc
-    uses: hexdoc-dev/actions/.github/workflows/hexdoc.yml@v1
+    uses: ./.github/workflows/docs.yml
     permissions:
       contents: write
       pages: read
-    secrets:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
-      python-version: 3.11
-      deploy-pages: ${{ inputs.publish_hexdoc && !inputs.dry_run }}
+      deploy-pages: ${{ !inputs.dry_run }}
       release: true
 
   publish-pypi:

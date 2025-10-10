@@ -37,8 +37,7 @@ class MishapIllegalInterworldIota(val iota: Iota) : Mishap() {
                 val iotaToCheck = poolToSearch.removeFirst()
                 if (iotaTypeIsIllegal(iotaToCheck))
                     return iotaToCheck
-                if (iotaToCheck.subIotas() != null)
-                    poolToSearch.addAll(iotaToCheck.subIotas()!!)
+                iotaToCheck.subIotas()?.let { poolToSearch.addAll(it) }
             }
 
             return null

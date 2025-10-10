@@ -415,5 +415,7 @@
   "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb": "Tick Inverse Probability of Random Ticking",
   "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[0]": "The inverse probability of tick randomly ticking a block.",
   "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[1]": "Higher numbers make random ticks less likely, lower numbers make them more likely.",
-  "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[2]": "Bound from 600 to 2100."
+  "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[2]": "Bound from 600 to 2100.",
+
+  "hexal.everbook.sizewarning": "Your everbook data was larger than the server's limit of %s bytes. You will not be able to use it until you rejoin with a small enough everbook."
 }

@@ -152,8 +152,12 @@ fun ByteArray.decompressToNBT() : CompoundTag {
 
 fun ByteArray.decompressToNBT(maxSize : Long) : CompoundTag {
 	try {
-		return ByteArrayInputStream(this).createDecompressorStream().use {
-			NbtIo.read(it, NbtAccounter(maxSize))
+		try {
+			return ByteArrayInputStream(this).createDecompressorStream().use {
+				NbtIo.read(it, NbtAccounter(maxSize))
+			}
+		} catch (exception : RuntimeException){
+			HexalAPI.LOGGER.info("Attempted to decompress byte array larger than $maxSize bytes, returning empty nbt.")
 		}
 	} catch (exception : IOException){
 		HexalAPI.LOGGER.error("Could not decompress byte array.", exception)

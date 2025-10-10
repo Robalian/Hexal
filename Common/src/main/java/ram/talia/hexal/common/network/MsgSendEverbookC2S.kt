@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import ram.talia.hexal.api.HexalAPI
+import ram.talia.hexal.api.config.HexalConfig
 import ram.talia.hexal.api.everbook.Everbook
 import ram.talia.hexal.api.nbt.decompressToNBT
 import ram.talia.hexal.api.nbt.toCompressedBytes
@@ -36,7 +37,7 @@ data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 		fun deserialise(buffer: ByteBuf): MsgSendEverbookC2S {
 			val buf = FriendlyByteBuf(buffer)
 			val bytes = buf.readByteArray()
-			val decompressed = bytes.decompressToNBT()
+			val decompressed = bytes.decompressToNBT(HexalConfig.server.everbookMaxSize)
 			HexalAPI.LOGGER.info("Deserializing everbook data of size ${bytes.size} decompressed to size ${decompressed.sizeInBytes()}")
 			return MsgSendEverbookC2S(Everbook.fromNbt(decompressed))
 		}

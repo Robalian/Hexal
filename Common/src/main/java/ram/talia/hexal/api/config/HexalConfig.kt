@@ -17,6 +17,8 @@ object HexalConfig {
     interface ServerConfigAccess {
         val generateSlipwayGeodes: Boolean
 
+        val everbookMaxSize : Long
+
         // costs of misc spells
         val fallingBlockCost: Long
         val freezeCost: Long
@@ -81,6 +83,8 @@ object HexalConfig {
 
         companion object {
             const val DEFAULT_GENERATE_SLIPWAY_GEODES: Boolean = true
+
+            const val DEFAULT_EVERBOOK_MAX_SIZE : Long = 64 * 1025 * 1023
 
             const val DEF_MIN_COST = 0.0001
             const val DEF_MAX_COST = 10_000.0
@@ -204,6 +208,8 @@ object HexalConfig {
     }
     private object DummyServer : ServerConfigAccess {
         override val generateSlipwayGeodes: Boolean
+            get() = throw IllegalStateException("Attempted to access property of Dummy Config Object")
+        override val everbookMaxSize: Long
             get() = throw IllegalStateException("Attempted to access property of Dummy Config Object")
         override val fallingBlockCost: Long
             get() = throw IllegalStateException("Attempted to access property of Dummy Config Object")

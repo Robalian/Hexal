@@ -5,21 +5,20 @@ import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.utils.asCompound
 import at.petrak.hexcasting.api.utils.asInt
 import net.minecraft.client.multiplayer.ClientLevel
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.IntTag
-import net.minecraft.nbt.ListTag
-import net.minecraft.nbt.NbtIo
-import net.minecraft.nbt.NbtUtils
-import net.minecraft.nbt.Tag
+import net.minecraft.nbt.*
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.FastBufferedInputStream
 import net.minecraft.world.entity.Entity
 import ram.talia.hexal.api.HexalAPI
 import ram.talia.hexal.api.linkable.ILinkable
 import ram.talia.hexal.api.linkable.LinkableRegistry
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.DataInputStream
 import java.io.IOException
+import java.io.InputStream
 import java.util.*
+import java.util.zip.GZIPInputStream
 
 fun ListTag.toIotaList(level: ServerLevel): MutableList<Iota> {
 	val out = ArrayList<Iota>()
@@ -149,4 +148,19 @@ fun ByteArray.decompressToNBT() : CompoundTag {
 		HexalAPI.LOGGER.error("Could not decompress byte array.", exception)
 		return CompoundTag()
 	}
+}
+
+fun ByteArray.decompressToNBT(maxSize : Long) : CompoundTag {
+	try {
+		return ByteArrayInputStream(this).createDecompressorStream().use {
+			NbtIo.read(it, NbtAccounter(maxSize))
+		}
+	} catch (exception : IOException){
+		HexalAPI.LOGGER.error("Could not decompress byte array.", exception)
+	}
+	return CompoundTag()
+}
+
+fun InputStream.createDecompressorStream() : DataInputStream {
+	return DataInputStream(FastBufferedInputStream(GZIPInputStream(this)))
 }

@@ -18,6 +18,8 @@
   "hexcasting.mishap.excessive_reproduction": "Wisp %s tried to reproduce excessively; only 1 child per tick.",
   "hexcasting.mishap.illegal_interworld_iota": "Attempted to bring iota %s interworld, this type of iota cannot be added to the Everbook.",
 
+  "hexcasting.mishap.bad_block.phaseable": "a phaseable block",
+
   "hexcasting.mishap.invalid_value.class.linkable": "a linkable",
   "hexcasting.mishap.invalid_value.class.wisp": "a wisp",
   "hexcasting.mishap.invalid_value.class.consumable_entity": "a consumable entity",

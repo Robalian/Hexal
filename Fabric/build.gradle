@@ -14,10 +14,12 @@ loom {
         client {
             client()
             setConfigName("Fabric Client")
+            runDir "run"
         }
         server {
             server()
             setConfigName("Fabric Server")
+            runDir "runServer"
         }
         datagen {
             client()
@@ -27,7 +29,6 @@ loom {
         }
 
         configureEach {
-            runDir "Fabric/run"
             ideConfigGenerated(true)
         }
     }
@@ -118,8 +119,8 @@ dependencies {
         exclude group: "net.fabricmc.fabric-api"
     })
 
-//    modApi include("com.unascribed:lib39-core:$lib39Version+$minecraftVersion")
-//    modApi include("com.unascribed:lib39-phantom:$lib39Version+$minecraftVersion")
+    modApi include("com.unascribed:lib39-core:$lib39Version+$minecraftVersion")
+    modApi include("com.unascribed:lib39-phantom:$lib39Version+$minecraftVersion")
 
     modImplementation("com.terraformersmc:modmenu:$modmenuVersion")
 

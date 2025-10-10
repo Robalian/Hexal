@@ -4,7 +4,7 @@ import at.petrak.hexcasting.api.casting.*
 import at.petrak.hexcasting.api.casting.castables.SpellAction
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.iota.Iota
-import at.petrak.hexcasting.api.casting.mishaps.MishapInvalidIota
+import at.petrak.hexcasting.api.casting.mishaps.MishapBadBlock
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
@@ -19,11 +19,11 @@ object OpPhaseBlock : SpellAction {
         val pos = args.getBlockPos(0, argc)
         val time = args.getPositiveDouble(1, argc)
 
-        env.assertVecInRange(Vec3.atCenterOf(pos))
+        env.assertPosInRangeForEditing(pos)
 
         val bs: BlockState = env.world.getBlockState(pos)
         if (bs.getDestroySpeed(env.world, pos) < 0.0f)
-            throw MishapInvalidIota.of(args[1], 0, "unbreakable_block", pos)
+            throw MishapBadBlock.of(pos, "phaseable")
 
         return SpellAction.Result(
             Spell(pos, (time * 20).toInt()),
@@ -34,11 +34,7 @@ object OpPhaseBlock : SpellAction {
 
     private data class Spell(val pos: BlockPos, val ticks: Int) : RenderedSpell {
         override fun cast(env: CastingEnvironment) {
-            val bs: BlockState = env.world.getBlockState(pos)
-            if (bs.getDestroySpeed(env.world, pos) < 0.0f)
-                return
-
-//            env.world.phaseBlock(pos, ticks)
+            env.world.phaseBlock(pos, ticks)
 
             IXplatAbstractions.INSTANCE.sendPacketTracking(pos, env.world, MsgPhaseBlockS2C(pos, ticks))
         }

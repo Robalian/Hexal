@@ -38,7 +38,7 @@ object OpPhaseBlock : SpellAction {
             if (bs.getDestroySpeed(env.world, pos) < 0.0f)
                 return
 
-//            env.world.phaseBlock(pos, ticks)
+            env.world.phaseBlock(pos, ticks)
 
             IXplatAbstractions.INSTANCE.sendPacketTracking(pos, env.world, MsgPhaseBlockS2C(pos, ticks))
         }

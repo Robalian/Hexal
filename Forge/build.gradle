@@ -14,9 +14,7 @@ buildscript {
 }
 
 plugins {
-    id "com.modrinth.minotaur" version "2.+"
-    // It's safest to have this on 2.+ to get the latest features and
-    // bug fixes without having to worry about breaking changes.
+    id 'hexal.platform'
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -139,11 +137,6 @@ repositories {
     // Put repositories for dependencies here
     // ForgeGradle automatically adds the Forge maven and Maven Central for you
 
-    // If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
-     flatDir {
-         dir 'libs'
-     }
-
     maven {
         // location of the maven that hosts JEI files
         name = "Progwml6 maven"
@@ -179,8 +172,8 @@ dependencies {
     runtimeOnly fg.deobf("at.petra-k.paucal:paucal-forge-$minecraftVersion:$paucalVersion")
     compileOnly fg.deobf("at.petra-k.hexcasting:hexcasting-forge-$minecraftVersion:$hexcastingVersion")
     runtimeOnly fg.deobf("at.petra-k.hexcasting:hexcasting-forge-$minecraftVersion:$hexcastingVersion")
-    compileOnly fg.deobf("$modID:moreiotas-forge-$minecraftVersion:$moreIotasVersion")
-    runtimeOnly fg.deobf("$modID:moreiotas-forge-$minecraftVersion:$moreIotasVersion")
+    compileOnly(fg.deobf("ram.talia.moreiotas:moreiotas-forge-$minecraftVersion:$moreIotasVersion") { transitive = false })
+    runtimeOnly(fg.deobf("ram.talia.moreiotas:moreiotas-forge-$minecraftVersion:$moreIotasVersion") { transitive = false })
 
     compileOnly fg.deobf("vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FORGE-SNAPSHOT")
     runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FORGE-SNAPSHOT")
@@ -209,13 +202,13 @@ dependencies {
     testRuntimeOnly fg.deobf("at.petra-k.paucal:paucal-forge-$minecraftVersion:$paucalVersion")
     testCompileOnly fg.deobf("at.petra-k.hexcasting:hexcasting-forge-$minecraftVersion:$hexcastingVersion")
     testRuntimeOnly fg.deobf("at.petra-k.hexcasting:hexcasting-forge-$minecraftVersion:$hexcastingVersion")
-    testCompileOnly fg.deobf("$modID:moreiotas-forge-$minecraftVersion:$moreIotasVersion")
-    testRuntimeOnly fg.deobf("$modID:moreiotas-forge-$minecraftVersion:$moreIotasVersion")
+    testCompileOnly(fg.deobf("ram.talia.moreiotas:moreiotas-forge-$minecraftVersion:$moreIotasVersion") { transitive = false })
+    testRuntimeOnly(fg.deobf("ram.talia.moreiotas:moreiotas-forge-$minecraftVersion:$moreIotasVersion") { transitive = false })
     testCompileOnly fg.deobf("vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FORGE-SNAPSHOT")
     testRuntimeOnly fg.deobf("vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FORGE-SNAPSHOT")
 
-    testCompileOnly 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    testCompileOnly "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
 mixin {
@@ -301,27 +294,33 @@ processTestResources {
     }
 }
 
-modrinth {
-    token = System.env.MODRINTH_TOKEN
-    projectId = "hexal" // This can be the project ID or the slug. Either will work!
-    versionNumber = "$modVersion" // You don't need to set this manually. Will fail if Modrinth has this version already
-    versionName = "$modVersion-forge"
-    changelog = getLatestChangelog()
-    versionType = "release" // This is the default -- can also be `beta` or `alpha`
-    uploadFile = jar // With Loom, this MUST be set to `remapJar` instead of `jar`!
-    gameVersions = ["1.20.1"] // Must be an array, even with only one version
-    loaders = ["forge"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
-    dependencies { // A special DSL for creating dependencies
-        // scope.type
-        // The scope can be `required`, `optional`, `incompatible`, or `embedded`
-        // The type can either be `project` or `version`
-        required.project "hex-casting" // Creates a new required dependency on Hex Casting
-        required.project "paucal"
-        required.project "patchouli"
-        required.project "kotlin-for-forge"
-        required.project "geckolib"
-    }
+hexalModDependencies {
+    requires("kotlin-for-forge")
+    requires("paucal")
+    requires("patchouli")
+    requires(curseforge: "hexcasting", modrinth: "hex-casting")
+    requires("moreiotas")
+    requires("geckolib")
+}
+
+publishMods {
+    file = jar.archiveFile
 }
 
 jar.finalizedBy('reobfJar')
 setupJar(this)
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            // ForgeGradle exports (broken) remapped dependencies, so just remove all of them
+            // https://github.com/VazkiiMods/Botania/blob/87ef25381381f06a1f0f106b896b420956d52bca/Forge/build.gradle#L179
+            pom.withXml {
+                def node = asNode()
+                if (node.dependencies.size() > 0) {
+                    node.remove(node.dependencies)
+                }
+            }
+        }
+    }
+}

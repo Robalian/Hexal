@@ -5,17 +5,6 @@ on:
     branches:
       - '*'
   pull_request:
-  workflow_call:
-    inputs:
-      mod_release:
-        type: boolean
-        required: true
-      hexdoc_release:
-        type: boolean
-        required: true
-      dry_run:
-        type: boolean
-        required: true
   workflow_dispatch:
 
 permissions:
@@ -40,9 +29,29 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Build mod
-        env:
-          RELEASE: ${{ inputs.mod_release == true }}
         run: ./gradlew build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod-build
+          path: build/ciArtifacts/
+          if-no-files-found: error
+
+  test-mod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Run unit tests
+        run: ./gradlew test
 
       # if this step fails, you need to run your datagen and commit the updated files
       - name: Check if datagen needs to be run
@@ -53,14 +62,7 @@ jobs:
           git add --intent-to-add .
           git diff --name-only --exit-code -- ":!:*/src/generated/resources/.cache/*"
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: mod-build
-          path: build/ciArtifacts/
-          if-no-files-found: error
-
-  test-mod:
+  runtime-test-mod:
     needs: build-mod
     strategy:
       fail-fast: false
@@ -79,11 +81,12 @@ jobs:
             # NOTE: these must be quoted and formatted exactly like this, since they'll be used as a bash array
             dependencies: >-
               'https://cdn.modrinth.com/data/Ha28R6CL/versions/ADg3gvlr/fabric-language-kotlin-1.9.5%2Bkotlin.1.8.22.jar'
-              'https://cdn.modrinth.com/data/K01OU20C/versions/HykM2Qyv/cardinal-components-api-5.2.1.jar'
+              'https://cdn.modrinth.com/data/K01OU20C/versions/qW85eawp/cardinal-components-api-5.2.2.jar'
               'https://cdn.modrinth.com/data/nU0bVIaL/versions/PKvFvHeb/Patchouli-1.20.1-80-FABRIC.jar'
               'https://cdn.modrinth.com/data/9s6osm5g/versions/s7VTKfLA/cloth-config-11.1.106-fabric.jar'
               'https://cdn.modrinth.com/data/TZo2wHFe/versions/dabyDTwJ/paucal-0.6.0%2B1.20.1-fabric.jar'
               'https://cdn.modrinth.com/data/nTW3yKrm/versions/IvI9LKNc/hexcasting-fabric-1.20.1-0.11.2.jar'
+              'https://cdn.modrinth.com/data/Jmt7p37B/versions/fbdx2AgN/moreiotas-fabric-1.20.1-0.1.1.jar'
               'https://cdn.modrinth.com/data/8BmcQJ2H/versions/5bofFrdJ/geckolib-fabric-1.20.1-4.2.1.jar'
               'https://cdn.modrinth.com/data/fin1PX4m/versions/fBoxabC2/inline-fabric-1.20.1-1.0.1.jar'
           - modloader: forge
@@ -95,6 +98,7 @@ jobs:
               'https://cdn.modrinth.com/data/TZo2wHFe/versions/HyBiJPtT/paucal-0.6.0%2B1.20.1-forge.jar'
               'https://cdn.modrinth.com/data/nU0bVIaL/versions/scPQNgN5/Patchouli-1.20.1-80-FORGE.jar'
               'https://cdn.modrinth.com/data/nTW3yKrm/versions/xENnFQpR/hexcasting-forge-1.20.1-0.11.2.jar'
+              'https://cdn.modrinth.com/data/Jmt7p37B/versions/zrmwDsEQ/moreiotas-forge-1.20.1-0.1.1.jar'
               'https://cdn.modrinth.com/data/8BmcQJ2H/versions/qq4z76WF/geckolib-forge-1.20.1-4.2.1.jar'
               'https://cdn.modrinth.com/data/40FYwb4z/versions/fs9CeXYZ/caelus-forge-3.1.0%2B1.20.jar'
               'https://cdn.modrinth.com/data/fin1PX4m/versions/huiPd6Lc/inline-forge-1.20.1-1.0.1.jar'
@@ -129,17 +133,15 @@ jobs:
           for url in ${{ matrix.dependencies }}; do
             wget --directory-prefix=run/mods/ "$url"
           done
-      
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: mod-build
           path: build/ciArtifacts/
-      
+
       - name: Prepare mod jars
-        run: |
-          cp build/ciArtifacts/*${{ matrix.modloader }}*.jar run/mods
-          cp ${{ matrix.path }}/libs/moreiotas-${{ matrix.modloader }}-1.20.1-0.1.0-3.jar run/mods
+        run: cp build/ciArtifacts/*${{ matrix.modloader }}*.jar run/mods
 
       - name: Run MC test client
         if: matrix.env == 'client'
@@ -154,7 +156,7 @@ jobs:
           regex: '.*${{ matrix.modloader }}.*'
           fabric-api: ${{ matrix.fabric-api }}
           mc-runtime-test: ${{ matrix.mc-runtime-test }}
-      
+
       - name: Run MC test server
         if: matrix.env == 'server'
         timeout-minutes: 10  # see above
@@ -172,7 +174,7 @@ jobs:
       pages: read
     outputs:
       pages-url: ${{ steps.build.outputs.pages-url }}
-      deploy: ${{ github.event_name != 'pull_request' && contains(fromJson(env.HEXDOC_BRANCHES), github.ref_name) && !inputs.dry_run }}
+      deploy: ${{ github.event_name != 'pull_request' && contains(fromJson(env.HEXDOC_BRANCHES), github.ref_name) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -185,7 +187,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          release: ${{ inputs.hexdoc_release == true }}
+          release: false
 
   deploy-pages:
     needs:
@@ -203,17 +205,18 @@ jobs:
       - uses: hexdoc-dev/actions/setup@v1
         with:
           python-version: 3.11
-        
+
       - name: Merge new hexdoc build into existing book
         uses: hexdoc-dev/actions/merge@v1
         with:
-          release: ${{ inputs.hexdoc_release == true }}
+          release: false
           site-url: ${{ needs.build-hexdoc.outputs.pages-url }}
 
       # if you want to add extra things to your website (eg. Javadoc/Dokka), add it to _site/dst/docs here
+      # NOTE: also update release.yml!
 
       - name: Deploy to Pages
         uses: hexdoc-dev/actions/deploy-pages@v1
         with:
           merge: false
-          release: ${{ inputs.hexdoc_release == true }}
+          release: false

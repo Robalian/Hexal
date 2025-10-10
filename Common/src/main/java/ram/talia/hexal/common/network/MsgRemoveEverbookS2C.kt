@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import ram.talia.hexal.api.HexalAPI
+import ram.talia.hexal.api.everbook.Everbook
 import ram.talia.hexal.xplat.IClientXplatAbstractions
 
 /**
@@ -33,6 +34,7 @@ data class MsgRemoveEverbookS2C(val key: HexPattern) : IMessage {
 		fun handle(self: MsgRemoveEverbookS2C) {
 			Minecraft.getInstance().execute {
 				IClientXplatAbstractions.INSTANCE.removeClientEverbookIota(self.key)
+				Everbook.notifyModification()
 			}
 		}
 	}

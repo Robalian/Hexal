@@ -1,8 +1,6 @@
 plugins {
     id 'fabric-loom' version "$loomVersion"
-    id "com.modrinth.minotaur" version "2.+"
-    // It's safest to have this on 2.+ to get the latest features and
-    // bug fixes without having to worry about breaking changes.
+    id 'hexal.platform'
 }
 
 archivesBaseName = getArtifactID("fabric")
@@ -16,10 +14,12 @@ loom {
         client {
             client()
             setConfigName("Fabric Client")
+            runDir "run"
         }
         server {
             server()
             setConfigName("Fabric Server")
+            runDir "runServer"
         }
         datagen {
             client()
@@ -29,7 +29,6 @@ loom {
         }
 
         configureEach {
-            runDir "Fabric/run"
             ideConfigGenerated(true)
         }
     }
@@ -83,7 +82,7 @@ dependencies {
     modImplementation("at.petra-k.hexcasting:hexcasting-fabric-$minecraftVersion:$hexcastingVersion") {
         exclude module: "phosphor"
     }
-    modImplementation "$modID:moreiotas-fabric-$minecraftVersion:$moreIotasVersion"
+    modImplementation "ram.talia.moreiotas:moreiotas-fabric-$minecraftVersion:$moreIotasVersion"
     modImplementation "vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FABRIC-SNAPSHOT"
     modImplementation "com.samsthenerd.inline:inline-fabric:$minecraftVersion-$inlineVersion"
 
@@ -120,15 +119,15 @@ dependencies {
         exclude group: "net.fabricmc.fabric-api"
     })
 
-//    modApi include("com.unascribed:lib39-core:$lib39Version+$minecraftVersion")
-//    modApi include("com.unascribed:lib39-phantom:$lib39Version+$minecraftVersion")
+    modApi include("com.unascribed:lib39-core:$lib39Version+$minecraftVersion")
+    modApi include("com.unascribed:lib39-phantom:$lib39Version+$minecraftVersion")
 
     modImplementation("com.terraformersmc:modmenu:$modmenuVersion")
 
     implementation 'org.jetbrains:annotations:23.0.0'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
 tasks.withType(JavaCompile) {
@@ -164,6 +163,7 @@ build {
     dependsOn ciArtifacts
 }
 
+/*
 modrinth {
     token = System.env.MODRINTH_TOKEN
     projectId = "$modID" // This can be the project ID or the slug. Either will work!
@@ -186,6 +186,26 @@ modrinth {
         required.project "cardinal-components-api"
         required.project "geckolib"
     }
+}
+ */
+
+hexalModDependencies {
+    requires("fabric-api")
+    requires("fabric-language-kotlin")
+    requires("cardinal-components-api")
+    requires("patchouli")
+    requires("cloth-config")
+    requires("paucal")
+    requires(curseforge: "hexcasting", modrinth: "hex-casting")
+    requires("moreiotas")
+    requires("geckolib")
+
+    optional("modmenu")
+    optional("pehkui")
+}
+
+publishMods {
+    file = remapJar.archiveFile
 }
 
 setupJar(this)

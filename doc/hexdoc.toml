@@ -12,6 +12,7 @@ resource_dirs = [  # top takes priority
     { path="{^_fabric.src}/generated/resources", required=false },
     "{_forge.src}/main/resources",
     { path="{^_forge.src}/generated/resources", required=false },
+    { modid="moreiotas" },
     { modid="hexcasting" },
     { modid="minecraft" },
     { modid="hexdoc" },

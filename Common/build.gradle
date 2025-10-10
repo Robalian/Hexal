@@ -12,11 +12,6 @@ minecraft {
 repositories {
     mavenCentral()
 
-//     If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
-     flatDir {
-         dir 'libs'
-     }
-
     maven { url 'https://maven.blamejared.com' }
 
     maven {
@@ -39,16 +34,16 @@ dependencies {
 
     compileOnly "at.petra-k.paucal:paucal-common-$minecraftVersion:$paucalVersion"
     compileOnly "at.petra-k.hexcasting:hexcasting-common-$minecraftVersion:$hexcastingVersion"
-    compileOnly "$modID:moreiotas-common-$minecraftVersion:$moreIotasVersion"
+    compileOnly "ram.talia.moreiotas:moreiotas-common-$minecraftVersion:$moreIotasVersion"
     compileOnly "vazkii.patchouli:Patchouli-xplat:$minecraftVersion-$patchouliVersion-SNAPSHOT"
     compileOnly "software.bernie.geckolib:geckolib-forge-$minecraftVersion:$geckolibVersion"
 
     testImplementation "at.petra-k.paucal:paucal-common-$minecraftVersion:$paucalVersion"
     testImplementation "at.petra-k.hexcasting:hexcasting-common-$minecraftVersion:$hexcastingVersion"
-    testImplementation "$modID:moreiotas-common-$minecraftVersion:$moreIotasVersion"
+    testImplementation "ram.talia.moreiotas:moreiotas-common-$minecraftVersion:$moreIotasVersion"
     testImplementation "vazkii.patchouli:Patchouli-xplat:$minecraftVersion-$patchouliVersion-SNAPSHOT"
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
 test {

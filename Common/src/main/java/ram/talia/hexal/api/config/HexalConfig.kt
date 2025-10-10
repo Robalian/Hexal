@@ -6,7 +6,13 @@ import ram.talia.hexal.api.HexalAPI
 object HexalConfig {
     interface CommonConfigAccess { }
 
-    interface ClientConfigAccess { }
+    interface ClientConfigAccess {
+        val everbookSaveDelay : Long
+
+        companion object {
+            const val DEFAULT_EVERBOOK_SAVE_DELAY : Long = 200L //ten seconds
+        }
+    }
 
     interface ServerConfigAccess {
         val generateSlipwayGeodes: Boolean
@@ -192,7 +198,10 @@ object HexalConfig {
     }
 
     private object DummyCommon : CommonConfigAccess {  }
-    private object DummyClient : ClientConfigAccess {  }
+    private object DummyClient : ClientConfigAccess {
+        override val everbookSaveDelay: Long
+            get() = throw IllegalStateException("Attempted to access property of Dummy Config Object")
+    }
     private object DummyServer : ServerConfigAccess {
         override val generateSlipwayGeodes: Boolean
             get() = throw IllegalStateException("Attempted to access property of Dummy Config Object")

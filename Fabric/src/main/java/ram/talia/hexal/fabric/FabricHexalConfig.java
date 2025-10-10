@@ -52,7 +52,19 @@ public class FabricHexalConfig extends PartitioningSerializer.GlobalData {
     private static class Common implements ConfigData, HexalConfig.CommonConfigAccess { }
 
     @Config(name = "client")
-    private static class Client implements ConfigData, HexalConfig.ClientConfigAccess { }
+    private static class Client implements ConfigData, HexalConfig.ClientConfigAccess {
+        @ConfigEntry.Gui.CollapsibleObject
+        private MiscValues miscValues = new MiscValues();
+
+        static class MiscValues {
+            long everbookSaveDelay = DEFAULT_EVERBOOK_SAVE_DELAY;
+        }
+
+        @Override
+        public long getEverbookSaveDelay() {
+            return Math.max(1, miscValues.everbookSaveDelay);
+        }
+    }
 
 
     @Config(name = "server")

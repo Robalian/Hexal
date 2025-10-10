@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import ram.talia.hexal.api.HexalAPI
+import ram.talia.hexal.api.everbook.Everbook
 import ram.talia.hexal.xplat.IClientXplatAbstractions
 
 class MsgToggleMacroS2C(val key: HexPattern) : IMessage {
@@ -30,6 +31,7 @@ class MsgToggleMacroS2C(val key: HexPattern) : IMessage {
 		fun handle(self: MsgToggleMacroS2C) {
 			Minecraft.getInstance().execute {
 				IClientXplatAbstractions.INSTANCE.toggleClientEverbookMacro(self.key)
+				Everbook.notifyModification()
 			}
 		}
 	}

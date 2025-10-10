@@ -8,11 +8,16 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import ram.talia.hexal.api.HexalAPI
 import ram.talia.hexal.api.everbook.Everbook
+import ram.talia.hexal.api.nbt.decompressToNBT
+import ram.talia.hexal.api.nbt.toCompressedBytes
 import ram.talia.hexal.xplat.IXplatAbstractions
 
 data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 	override fun serialize(buf: FriendlyByteBuf) {
-		buf.writeNbt(everbook.serialiseToNBT())
+		val bookNbt = everbook.serialiseToNBT()
+		val bytes = bookNbt.toCompressedBytes()
+		HexalAPI.LOGGER.info("Serialized everbook data of size ${bookNbt.sizeInBytes()} compressed to size ${bytes.size}")
+		buf.writeByteArray(bytes)
 	}
 
 	override fun getFabricId() = ID
@@ -30,7 +35,10 @@ data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 		@JvmStatic
 		fun deserialise(buffer: ByteBuf): MsgSendEverbookC2S {
 			val buf = FriendlyByteBuf(buffer)
-			return MsgSendEverbookC2S(Everbook.fromNbt(buf.readNbt()!!))
+			val bytes = buf.readByteArray()
+			val decompressed = bytes.decompressToNBT()
+			HexalAPI.LOGGER.info("Deserializing everbook data of size ${bytes.size} decompressed to size ${decompressed.sizeInBytes()}")
+			return MsgSendEverbookC2S(Everbook.fromNbt(decompressed))
 		}
 	}
 }

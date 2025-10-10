@@ -17,8 +17,19 @@ public class ForgeHexalConfig implements HexalConfig.CommonConfigAccess {
     }
 
     public static class Client implements HexalConfig.ClientConfigAccess {
-        public Client(ForgeConfigSpec.Builder builder) {
 
+        private static ForgeConfigSpec.LongValue everbookSaveDelay;
+
+        public Client(ForgeConfigSpec.Builder builder) {
+            builder.translation("text.autoconfig.hexal.option.client.miscValues").push("miscValues");
+            everbookSaveDelay = builder.translation("text.autoconfig.hexal.option.client.miscValues.everbookSaveDelay")
+                    .defineInRange("everbookSaveDelay", DEFAULT_EVERBOOK_SAVE_DELAY, 1L, Long.MAX_VALUE);
+            builder.pop();
+        }
+
+        @Override
+        public long getEverbookSaveDelay() {
+            return everbookSaveDelay.get();
         }
     }
 

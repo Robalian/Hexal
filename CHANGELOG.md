@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-TODO
+### Fixed
+
+- Fixed Phase Block not checking for edit permissions.
+- Fixed a broken error message when attempting to use Phase Block on an unbreakable block.
 
 ## Previous versions
 

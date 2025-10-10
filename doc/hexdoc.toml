@@ -38,9 +38,23 @@ missing = [
 ]
 
 [extra.hexcasting]
-# regexes for parsing pattern registry files - try running copier update and picking a different regex if your patterns aren't loading
+# regex for parsing pattern registry files
 # NOTE: "!Raw" means "don't apply variable interpolation to this value"
-_pattern_regex = { "!Raw"='make\(\s*"(?P<name>[a-zA-Z0-9_\/]+)",\s*\s*HexPattern\.fromAngles\(\s*"(?P<signature>[aqweds]+)",\s*HexDir.(?P<startdir>\w+)\)' }
+_pattern_regex."!Raw" = '''(?mx)
+^
+[^\n/]*
+make\(
+    \s*
+    "(?P<name>[a-zA-Z0-9_\/]+)",
+    \s*
+    HexPattern\.fromAngles\(
+        \s*
+        "(?P<signature>[aqweds]+)",
+        \s*
+        HexDir.(?P<startdir>\w+),?
+        \s*
+    \)
+'''
 
 [[extra.hexcasting.pattern_stubs]]
 path = "{$_common.package}/common/lib/hex/HexalActions.kt"

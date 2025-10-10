@@ -1,4 +1,4 @@
-name: Build and push web book
+name: "[Reusable] Build and push the web book"
 
 on:
   workflow_call:

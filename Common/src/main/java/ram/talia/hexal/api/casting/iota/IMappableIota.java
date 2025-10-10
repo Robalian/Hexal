@@ -11,7 +11,7 @@ public interface IMappableIota {
     /**
      * Returns a new iota consisting of the result of applying the given function to the contents of this iota.
      * <br />
-     * Implementations should apply <code>mapper</code> to every sub-iota ({@link Iota#subIotas()}), then return a copy of itself containing the mapped iotas.
+     * Implementations should apply {@code mapper} to every sub-iota ({@link Iota#subIotas()}), then return a copy of itself containing the mapped iotas.
      */
     Iota mapSubIotas(UnaryOperator<Iota> mapper);
 }

@@ -136,34 +136,36 @@ fun ListTag.toIRenderCentreMap(level: ClientLevel): Map<CompoundTag, ILinkable.I
 }
 
 fun CompoundTag.toCompressedBytes() : ByteArray {
-	val out : ByteArrayOutputStream = ByteArrayOutputStream()
+	val out = ByteArrayOutputStream()
 	NbtIo.writeCompressed(this, out)
 	return out.toByteArray()
 }
 
-fun ByteArray.decompressToNBT() : CompoundTag {
+fun ByteArray.decompressToNBT(maxSize : Long) : CompoundTag {
 	try {
-		return NbtIo.readCompressed(ByteArrayInputStream(this))
+		return ByteArrayInputStream(this).createDecompressorStream().use {
+			NbtIo.read(it, SlightlyBetterNbtAccounter(maxSize))
+		}
+	} catch (exception : NbtSizeException){
+		HexalAPI.LOGGER.info("Attempted to decompress byte array larger than $maxSize bytes.")
+		throw exception
 	} catch (exception : IOException){
 		HexalAPI.LOGGER.error("Could not decompress byte array.", exception)
-		return CompoundTag()
+		throw exception
 	}
 }
 
-fun ByteArray.decompressToNBT(maxSize : Long) : CompoundTag {
-	try {
+class SlightlyBetterNbtAccounter(max: Long) : NbtAccounter(max) {
+	override fun accountBytes(added : Long){
 		try {
-			return ByteArrayInputStream(this).createDecompressorStream().use {
-				NbtIo.read(it, NbtAccounter(maxSize))
-			}
-		} catch (exception : RuntimeException){
-			HexalAPI.LOGGER.info("Attempted to decompress byte array larger than $maxSize bytes, returning empty nbt.")
+			super.accountBytes(added)
+		} catch (e : RuntimeException){
+			throw NbtSizeException(e)
 		}
-	} catch (exception : IOException){
-		HexalAPI.LOGGER.error("Could not decompress byte array.", exception)
 	}
-	return CompoundTag()
 }
+
+class NbtSizeException(cause : Throwable) : RuntimeException(cause)
 
 fun InputStream.createDecompressorStream() : DataInputStream {
 	return DataInputStream(FastBufferedInputStream(GZIPInputStream(this)))

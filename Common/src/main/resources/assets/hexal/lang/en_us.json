@@ -417,5 +417,6 @@
   "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[1]": "Higher numbers make random ticks less likely, lower numbers make them more likely.",
   "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[2]": "Bound from 600 to 2100.",
 
-  "hexal.everbook.sizewarning": "Your everbook data was larger than the server's limit of %s bytes. You will not be able to use it until you rejoin with a small enough everbook."
+  "hexal.everbook.sizewarning": "Your everbook data was larger than the server's limit of %s bytes. You will not be able to use it until you rejoin with a small enough everbook.",
+  "hexal.everbook.unexpectederror": "An unexpected error occurred while attempting to process your everbook data, and you will not have access to it until the problem is resolved. Please contact your server administrator(s) for more information."
 }

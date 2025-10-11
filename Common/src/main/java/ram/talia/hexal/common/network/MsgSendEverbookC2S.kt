@@ -10,12 +10,14 @@ import net.minecraft.server.level.ServerPlayer
 import ram.talia.hexal.api.HexalAPI
 import ram.talia.hexal.api.config.HexalConfig
 import ram.talia.hexal.api.everbook.Everbook
+import ram.talia.hexal.api.nbt.NbtSizeException
 import ram.talia.hexal.api.nbt.decompressToNBT
 import ram.talia.hexal.api.nbt.toCompressedBytes
 import ram.talia.hexal.xplat.IXplatAbstractions
 
 data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 	private var wasTooBig = false
+	private var somethingWeirdHappened = false
 	override fun serialize(buf: FriendlyByteBuf) {
 		val bookNbt = everbook.serialiseToNBT()
 		val bytes = bookNbt.toCompressedBytes()
@@ -30,7 +32,11 @@ data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 		server.execute {
 			IXplatAbstractions.INSTANCE.setFullEverbook(sender, everbook.filterIotasIllegalInterworld(server.overworld()))
 			if (wasTooBig){
+				HexalAPI.LOGGER.info("Player ${sender.displayName.string}'s everbook data exceeded the configured size limit of ${HexalConfig.server.everbookMaxSize}")
 				sender.sendSystemMessage(Component.translatable("hexal.everbook.sizewarning", HexalConfig.server.everbookMaxSize))
+			}
+			if (somethingWeirdHappened){
+				sender.sendSystemMessage(Component.translatable("hexal.everbook.unexpectederror"))
 			}
 		}
 	}
@@ -44,14 +50,18 @@ data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 			val buf = FriendlyByteBuf(buffer)
 			val uuid = buf.readUUID()
 			val bytes = buf.readByteArray()
-			val decompressed = bytes.decompressToNBT(HexalConfig.server.everbookMaxSize)
-			if (decompressed.isEmpty){
-				val packet = MsgSendEverbookC2S(Everbook(uuid, mutableMapOf(), listOf()))
+			var packet = MsgSendEverbookC2S(Everbook(uuid, mutableMapOf(), listOf()))
+			try {
+				val decompressed = bytes.decompressToNBT(HexalConfig.server.everbookMaxSize)
+				HexalAPI.LOGGER.info("Deserializing everbook data of size ${bytes.size} decompressed to size ${decompressed.sizeInBytes()}")
+				packet = MsgSendEverbookC2S(Everbook.fromNbt(decompressed))
+			} catch (_ : NbtSizeException){
 				packet.wasTooBig = true
-				return packet
+			} catch (e : Exception){
+				HexalAPI.LOGGER.error("An unexpected error occurred while attempting to decompress player $uuid's everbook data.", e)
+				packet.somethingWeirdHappened = true
 			}
-			HexalAPI.LOGGER.info("Deserializing everbook data of size ${bytes.size} decompressed to size ${decompressed.sizeInBytes()}")
-			return MsgSendEverbookC2S(Everbook.fromNbt(decompressed))
+			return packet
 		}
 	}
 }

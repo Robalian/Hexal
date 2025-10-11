@@ -394,6 +394,9 @@
   "text.autoconfig.hexal.option.client.miscValues": "Miscellaneous Values",
   "text.autoconfig.hexal.option.client.miscValues.everbookSaveDelay": "Ticks the client waits after an everbook modification until saving it to disk",
 
+  "text.autoconfig.hexal.option.server.miscValues": "Miscellaneous Values",
+  "text.autoconfig.hexal.option.server.miscValues.everbookMaxSize": "Maximum size in bytes that the server will allow everbook data to be",
+
 
   "text.autoconfig.hexal.option.server.greatSpells": "Great Spells",
   "text.autoconfig.hexal.option.server.greatSpells.consumeWispOwnCost": "Consume Own Wisp Cost",
@@ -412,5 +415,8 @@
   "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb": "Tick Inverse Probability of Random Ticking",
   "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[0]": "The inverse probability of tick randomly ticking a block.",
   "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[1]": "Higher numbers make random ticks less likely, lower numbers make them more likely.",
-  "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[2]": "Bound from 600 to 2100."
+  "text.autoconfig.hexal.option.server.greatSpells.tickRandomTickIProb.@Tooltip[2]": "Bound from 600 to 2100.",
+
+  "hexal.everbook.sizewarning": "Your everbook data was larger than the server's limit of %s bytes. You will not be able to use it until you rejoin with a small enough everbook.",
+  "hexal.everbook.unexpectederror": "An unexpected error occurred while attempting to process your everbook data, and you will not have access to it until the problem is resolved. Please contact your server administrator(s) for more information."
 }

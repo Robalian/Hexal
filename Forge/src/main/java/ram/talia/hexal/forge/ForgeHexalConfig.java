@@ -36,6 +36,8 @@ public class ForgeHexalConfig implements HexalConfig.CommonConfigAccess {
     public static class Server implements HexalConfig.ServerConfigAccess {
         private static ForgeConfigSpec.BooleanValue generateSlipwayGeodes;
 
+        private static ForgeConfigSpec.LongValue everbookMaxSize;
+
         // costs of misc spells
         private static ForgeConfigSpec.DoubleValue fallingBlockCost;
         private static ForgeConfigSpec.DoubleValue freezeCost;
@@ -97,6 +99,11 @@ public class ForgeHexalConfig implements HexalConfig.CommonConfigAccess {
             generateSlipwayGeodes = builder.translation("text.autoconfig.hexal.option.server.generateSlipwayGeodes")
                     .define("generateSlipwayGeodes", DEFAULT_GENERATE_SLIPWAY_GEODES);
 
+            builder.pop();
+
+            builder.translation("text.autoconfig.hexal.option.server.miscValues").push("miscValues");
+            everbookMaxSize = builder.translation("text.autoconfig.hexal.option.server.miscValues.everbookMaxSize")
+                    .defineInRange("everbookMaxSize", DEFAULT_EVERBOOK_MAX_SIZE, 0L, DEFAULT_EVERBOOK_MAX_SIZE * 1024);
             builder.pop();
 
             // costs of misc spells
@@ -258,6 +265,11 @@ public class ForgeHexalConfig implements HexalConfig.CommonConfigAccess {
         @Override
         public boolean getGenerateSlipwayGeodes() {
             return generateSlipwayGeodes.get();
+        }
+
+        @Override
+        public long getEverbookMaxSize() {
+            return everbookMaxSize.get();
         }
 
         @Override

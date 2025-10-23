@@ -5,6 +5,7 @@ import at.petrak.hexcasting.api.casting.iota.EntityIota
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.utils.hasByte
 import at.petrak.hexcasting.api.utils.hasFloat
+import gay.`object`.hexdebug.core.api.HexDebugCoreAPI
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.network.chat.Component
@@ -12,6 +13,7 @@ import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
@@ -23,7 +25,9 @@ import ram.talia.hexal.api.nbt.SerialisedIotaList
 import ram.talia.hexal.api.plus
 import ram.talia.hexal.api.times
 import ram.talia.hexal.common.lib.HexalEntities
+import ram.talia.hexal.interop.hexdebug.WispDebugEnv
 import java.lang.Double.min
+import java.util.UUID
 
 class TickingWisp : BaseCastingWisp {
 	override val shouldComplainNotEnoughMedia = false
@@ -73,6 +77,24 @@ class TickingWisp : BaseCastingWisp {
 	val maximumMoveMultiplier: Float
 		get() = entityData.get(MAXIMUM_MOVE_MULTIPLIER)
 
+	private var debugSessionId: UUID? = null
+
+	val isDebugging: Boolean
+		get() = debugSessionId != null
+
+	private val isDebuggingAndPaused: Boolean
+		get() = isDebugging && getDebugEnv()?.isPaused != false
+
+	fun getDebugEnv(): WispDebugEnv? {
+		val debugSessionId = debugSessionId ?: return null
+		val caster = caster as? ServerPlayer ?: return null
+		return HexDebugCoreAPI.INSTANCE.getDebugEnv(caster, debugSessionId) as? WispDebugEnv
+	}
+
+	fun setDebugEnv(debugEnv: WispDebugEnv) {
+		debugSessionId = debugEnv.sessionId
+	}
+
 	constructor(entityType: EntityType<out BaseCastingWisp>, world: Level) : super(entityType, world)
 	constructor(
 		entityType: EntityType<out TickingWisp>,
@@ -121,6 +143,12 @@ class TickingWisp : BaseCastingWisp {
 			}
 		}
 
+		// if the debug session has ended, destroy the wisp
+		// TODO: this can result in a zombie session when the player dies (https://github.com/object-Object/HexDebug/issues/64)
+		if (isDebugging && caster != null && getDebugEnv() == null) {
+			discard()
+		}
+
 		super.tick()
 	}
 
@@ -143,7 +171,7 @@ class TickingWisp : BaseCastingWisp {
 	}
 
 	override fun move() {
-		if (reachedTargetPos()) // also checks if within close enough distance of target.
+		if (reachedTargetPos() || isDebuggingAndPaused) // also checks if within close enough distance of target.
 			return
 
 		val currentTarget = getTargetMovePosRaw()
@@ -163,10 +191,16 @@ class TickingWisp : BaseCastingWisp {
 	// Seon wisps have the same max range as the caster.
 	override fun maxSqrCastingDistance() = if (seon) { PlayerBasedCastEnv.AMBIT_RADIUS * PlayerBasedCastEnv.AMBIT_RADIUS } else { CASTING_RADIUS * CASTING_RADIUS }
 
+	override fun canScheduleCast(): Boolean {
+		return super.canScheduleCast() && !isDebuggingAndPaused
+	}
+
 	override fun castCallback(result: WispCastingManager.WispCastResult) {
 //		HexalAPI.LOGGER.info("ticking wisp $uuid had a cast successfully completed!")
-		setStack(result.endStack)
-		setRavenmind(result.endRavenmind)
+		if (!result.cancelled) {
+			setStack(result.endStack)
+			setRavenmind(result.endRavenmind)
+		}
 
 		super.castCallback(result)
 	}
@@ -184,16 +218,27 @@ class TickingWisp : BaseCastingWisp {
 		entityData.set(TARGET_MOVE_POS_Z, pos.z.toFloat())
 	}
 
+	fun clearTargetMovePos() {
+		entityData.set(HAS_TARGET_MOVE_POS, false)
+	}
+
 	fun reachedTargetPos(): Boolean {
 		return if (!entityData.get(HAS_TARGET_MOVE_POS)) {
 			true
 		} else if ((getTargetMovePosRaw() - position()).lengthSqr() < 0.01) {
 			setPos(getTargetMovePosRaw())
-			entityData.set(HAS_TARGET_MOVE_POS, false)
+			clearTargetMovePos()
 			true
 		} else {
 			false
 		}
+	}
+
+	override fun remove(reason: RemovalReason) {
+		if (reason.shouldDestroy()) {
+			getDebugEnv()?.let { HexDebugCoreAPI.INSTANCE.removeDebugThread(it) }
+		}
+		super.remove(reason)
 	}
 
 	override fun readAdditionalSaveData(compound: CompoundTag) {
@@ -202,6 +247,10 @@ class TickingWisp : BaseCastingWisp {
 		when (val stackTag = compound.get(TAG_STACK)) {
 			null -> serStack.set(mutableListOf())
 			else -> serStack.set(stackTag as ListTag)
+		}
+		debugSessionId = when (compound.hasUUID(TAG_DEBUG_SESSION_ID)) {
+			true -> compound.getUUID(TAG_DEBUG_SESSION_ID)
+			false -> null
 		}
 		entityData.set(HAS_TARGET_MOVE_POS, when(compound.hasByte(TAG_HAS_TARGET_MOVE_POS)) {
 			true -> compound.getBoolean(TAG_HAS_TARGET_MOVE_POS)
@@ -233,6 +282,7 @@ class TickingWisp : BaseCastingWisp {
 		super.addAdditionalSaveData(compound)
 
 		compound.put(TAG_STACK, serStack.getTag())
+		debugSessionId?.let { compound.putUUID(TAG_DEBUG_SESSION_ID, it) }
 		compound.putBoolean(TAG_HAS_TARGET_MOVE_POS, entityData.get(HAS_TARGET_MOVE_POS))
 		compound.putFloat(TAG_TARGET_MOVE_POS_X, entityData.get(TARGET_MOVE_POS_X))
 		compound.putFloat(TAG_TARGET_MOVE_POS_Y, entityData.get(TARGET_MOVE_POS_Y))
@@ -261,6 +311,7 @@ class TickingWisp : BaseCastingWisp {
 		val MAXIMUM_MOVE_MULTIPLIER: EntityDataAccessor<Float> = SynchedEntityData.defineId(TickingWisp::class.java, EntityDataSerializers.FLOAT)
 
 		const val TAG_STACK = "stack"
+		const val TAG_DEBUG_SESSION_ID = "debug_session_id"
 		const val TAG_HAS_TARGET_MOVE_POS = "has_target_move_pos"
 		const val TAG_TARGET_MOVE_POS_X = "target_move_pos_x"
 		const val TAG_TARGET_MOVE_POS_Y = "target_move_pos_y"

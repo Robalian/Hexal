@@ -7,6 +7,8 @@ import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.IotaType.isTooLargeToSerialize
 import at.petrak.hexcasting.api.utils.asCompound
 import at.petrak.hexcasting.api.utils.putCompound
+import gay.`object`.hexdebug.core.api.HexDebugCoreAPI
+import gay.`object`.hexdebug.core.api.exceptions.DebugException
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.server.MinecraftServer
@@ -16,6 +18,7 @@ import ram.talia.hexal.api.HexalAPI
 import ram.talia.hexal.api.casting.eval.env.WispCastEnv
 import ram.talia.hexal.api.nbt.SerialisedIotaList
 import ram.talia.hexal.common.entities.BaseCastingWisp
+import ram.talia.hexal.common.entities.TickingWisp
 import java.util.*
 
 class WispCastingManager(private val casterUUID: UUID, private var cachedServer: MinecraftServer?) {
@@ -130,22 +133,28 @@ class WispCastingManager(private val casterUUID: UUID, private var cachedServer:
 			userData = userData
 		)
 
+		val hex = cast.hex.getIotas(ctx.world)
+
+		// if we're debugging this wisp, delegate to the debugger
+		if (wisp is TickingWisp && wisp.isDebugging) {
+			wisp.getDebugEnv()?.let { debugEnv ->
+				debugEnv.isPaused = true
+				try {
+					HexDebugCoreAPI.INSTANCE.startDebuggingIotas(debugEnv, ctx, hex, image)
+				} catch (e: DebugException) {
+					HexalAPI.LOGGER.warn("Failed to start debugging wisp hex", e)
+				}
+			}
+			return WispCastResult(wisp, succeeded = true, image = image, cancelled = true)
+		}
+
 		val harness = CastingVM(image, ctx)
 
-		val info = harness.queueExecuteAndWrapIotas(cast.hex.getIotas(ctx.world), wisp.level() as ServerLevel)
-
-		// TODO: Make this a mishap
-		// Clear stack if it gets too large
-		var endStack = harness.image.stack
-		if (isTooLargeToSerialize(endStack)) {
-            endStack = mutableListOf()
-        }
-
-		val endRavenmind = harness.image.userData.getCompound(HexAPI.RAVENMIND_USERDATA)
+		val info = harness.queueExecuteAndWrapIotas(hex, wisp.level() as ServerLevel)
 
 		// the wisp will have things it wants to do once the cast is successful, so a callback on it is called to let it know that happened, and what the end state of the
 		// stack and ravenmind is. This is returned and added to a list that [executeCasts] will loop over to hopefully prevent concurrent modification problems.
-		return WispCastResult(wisp, info.resolutionType.success, endStack, endRavenmind)
+		return WispCastResult(wisp, info.resolutionType.success, harness.image)
 	}
 
 	fun readFromNbt(tag: CompoundTag?, level: ServerLevel) {
@@ -248,6 +257,21 @@ class WispCastingManager(private val casterUUID: UUID, private var cachedServer:
 	 * the result passed back to the Wisp after its cast is successfully executed.
 	 */
 	data class WispCastResult(val wisp: BaseCastingWisp, val succeeded: Boolean, val endStack: List<Iota>, val endRavenmind: CompoundTag, val cancelled: Boolean = false) {
+		constructor(
+			wisp: BaseCastingWisp,
+			succeeded: Boolean,
+			image: CastingImage,
+			cancelled: Boolean = false,
+		) : this(
+			wisp = wisp,
+			succeeded = succeeded,
+			// TODO: Make this a mishap
+			// Clear stack if it gets too large
+			endStack = if (isTooLargeToSerialize(image.stack)) mutableListOf() else image.stack,
+			endRavenmind = image.userData.getCompound(HexAPI.RAVENMIND_USERDATA),
+			cancelled = cancelled,
+		)
+
 		fun callback() { wisp.castCallback(this) }
 	}
 

@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version "$loomVersion"
+    id 'fabric-loom'
     id 'hexal.platform'
 }
 
@@ -101,7 +101,8 @@ dependencies {
 
     modImplementation "$modID:serialization-hooks:$serializationHooksVersion"
     include "$modID:serialization-hooks:$serializationHooksVersion"
-    implementation(include("com.github.LlamaLad7:MixinExtras:0.1.1"))
+
+    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:$mixinExtrasVersion")))
 
     modImplementation "software.bernie.geckolib:geckolib-fabric-$minecraftVersion:$geckolibVersion"
 
@@ -125,6 +126,11 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:$modmenuVersion")
 
     implementation 'org.jetbrains:annotations:23.0.0'
+
+    // include hexdebug-core in production so we can use the classes directly in code without loaded mod checks
+    // and put full hexdebug in the dev env so we can test the interop
+    modImplementation(include("gay.object.hexdebug:hexdebug-core-fabric:$hexdebugVersion"))
+    modLocalRuntime("gay.object.hexdebug:hexdebug-fabric:$hexdebugVersion")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

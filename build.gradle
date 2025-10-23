@@ -16,6 +16,7 @@ plugins {
     id "org.jetbrains.kotlin.jvm"
     id 'idea'
     id 'hexal.publish'
+    id 'fabric-loom' version "$loomVersion" apply false
 }
 
 String getArtifactID(String platform) {

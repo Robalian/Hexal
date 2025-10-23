@@ -2,22 +2,26 @@
 package ram.talia.hexal.common.casting.actions.spells.wisp
 
 import at.petrak.hexcasting.api.HexAPI
-import at.petrak.hexcasting.api.misc.MediaConstants
 import at.petrak.hexcasting.api.casting.*
 import at.petrak.hexcasting.api.casting.castables.SpellAction
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.NullIota
+import at.petrak.hexcasting.api.misc.MediaConstants
+import gay.`object`.hexdebug.core.api.HexDebugCoreAPI
+import gay.`object`.hexdebug.core.api.exceptions.DebugException
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.entity.player.Player
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.phys.Vec3
+import ram.talia.hexal.api.HexalAPI
 import ram.talia.hexal.api.addBounded
 import ram.talia.hexal.api.casting.eval.env.WispCastEnv
-import ram.talia.hexal.api.config.HexalConfig
 import ram.talia.hexal.api.casting.mishaps.MishapExcessiveReproduction
+import ram.talia.hexal.api.config.HexalConfig
 import ram.talia.hexal.common.entities.ProjectileWisp
 import ram.talia.hexal.common.entities.TickingWisp
+import ram.talia.hexal.interop.hexdebug.WispDebugEnv
 import kotlin.math.max
 
 class OpSummonWisp(val ticking: Boolean) : SpellAction {
@@ -72,15 +76,30 @@ class OpSummonWisp(val ticking: Boolean) : SpellAction {
             if (env is WispCastEnv)
                 env.wisp.summonedChildThisCast = true
 
+            val player = env.castingEntity as? ServerPlayer
+
             val pigment = env.pigment
             val wisp = when (ticking) {
-                true -> TickingWisp(env.world, pos, env.castingEntity as? Player, media)
-                false -> ProjectileWisp(env.world, pos, vel, env.castingEntity as? Player, media)
+                true -> TickingWisp(env.world, pos, player, media)
+                false -> ProjectileWisp(env.world, pos, vel, player, media)
             }
             wisp.setPigment(pigment)
             wisp.setHex(hex.toMutableList())
             wisp.setRavenmind(ravenmind)
             env.world.addFreshEntity(wisp)
+
+            // if the current cast is being debugged, try to spawn the wisp in debug mode too
+            if (HexDebugCoreAPI.INSTANCE.getDebugEnv(env) != null && player != null && wisp is TickingWisp) {
+                val debugEnv = WispDebugEnv(player, wisp.uuid, ravenmind)
+                try {
+                    HexDebugCoreAPI.INSTANCE.createDebugThread(debugEnv, null)
+                } catch (e: DebugException) {
+                    // if there are no threads available, just spawn the wisp in normal mode
+                    HexalAPI.LOGGER.debug("Not starting wisp in debug mode", e)
+                    return
+                }
+                wisp.setDebugEnv(debugEnv)
+            }
         }
     }
 }

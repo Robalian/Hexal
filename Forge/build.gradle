@@ -22,6 +22,8 @@ apply plugin: 'org.spongepowered.mixin'
 
 archivesBaseName = getArtifactID("forge")
 
+jarJar.enable()
+
 minecraft {
     mappings channel: 'official', version: minecraftVersion
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -192,6 +194,14 @@ dependencies {
 
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:$curiosVersion+$minecraftVersion:api")
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:$curiosVersion+$minecraftVersion")
+
+    implementation fg.deobf("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion")
+    jarJar(fg.deobf("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion")) {
+        jarJar.pin(it, "[$hexdebugVersion,)")
+    }
+    runtimeOnly fg.deobf("gay.object.hexdebug:hexdebug-forge:$hexdebugVersion")
+    runtimeOnly fg.deobf("gay.object.ioticblocks:ioticblocks-forge:$ioticBlocksVersion")
+    runtimeOnly fg.deobf("dev.architectury:architectury-forge:$architecturyVersion")
 
     // Testing dependencies:
     testCompileOnly project(":Common")

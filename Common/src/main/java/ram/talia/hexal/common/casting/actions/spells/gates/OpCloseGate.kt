@@ -9,7 +9,6 @@ import at.petrak.hexcasting.api.casting.eval.env.PlayerBasedCastEnv
 import at.petrak.hexcasting.api.casting.getVec3
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.mishaps.MishapBadLocation
-import at.petrak.hexcasting.common.msgs.MsgBlinkS2C
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
@@ -77,10 +76,7 @@ object OpCloseGate : VarargSpellAction {
         fun teleport(teleportee: Entity, allTeleportees: Set<Entity>, delta: Vec3, env: CastingEnvironment) {
             val distance = delta.length()
 
-            // TODO make this not a magic number (config?)
-            if (distance < 32768.0) {
-                teleportRespectSticky(teleportee, allTeleportees, delta)
-            }
+            teleportRespectSticky(teleportee, allTeleportees, delta)
 
             if (teleportee is ServerPlayer && teleportee == env.caster && distance < PlayerBasedCastEnv.AMBIT_RADIUS && dropItems) {
                 // Drop items conditionally, based on distance teleported.

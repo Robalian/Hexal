@@ -9,12 +9,18 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
+import net.fabricmc.fabric.api.networking.v1.PacketSender
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBiomeTags
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
+import net.minecraft.gametest.framework.GameTestServer
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.MinecraftServer
+import net.minecraft.server.dedicated.DedicatedServer
+import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.levelgen.GenerationStep
 import ram.talia.hexal.api.HexalAPI
 import ram.talia.hexal.api.gates.GateManager
@@ -24,6 +30,7 @@ import ram.talia.hexal.common.lib.HexalFeatures
 import ram.talia.hexal.common.lib.hex.HexalActions
 import ram.talia.hexal.common.lib.hex.HexalArithmetics
 import ram.talia.hexal.common.lib.hex.HexalIotaTypes
+import ram.talia.hexal.common.network.MsgSendEverbookC2S
 import ram.talia.hexal.common.recipe.HexalRecipeSerializers
 import ram.talia.hexal.common.recipe.HexalRecipeTypes
 import ram.talia.hexal.fabric.interop.phantom.OpPhaseBlock
@@ -54,11 +61,19 @@ object FabricHexalInitializer : ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register {
             val savedData = it.overworld().dataStorage.computeIfAbsent(::GateSavedData, ::GateSavedData, FILE_GATE_MANAGER)
             savedData.setDirty()
+            MsgSendEverbookC2S.isSingleplayer = !(it is DedicatedServer || it is GameTestServer)
         }
         ServerLifecycleEvents.SERVER_STOPPING.register {
             val savedData = it.overworld().dataStorage.computeIfAbsent(::GateSavedData, ::GateSavedData, FILE_GATE_MANAGER)
             GateManager.shouldClearOnWrite = true
             savedData.setDirty()
+        }
+        ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin)
+    }
+
+    private fun onPlayerJoin(impl : ServerGamePacketListenerImpl, sender : PacketSender, server : MinecraftServer){
+        if (server.playerCount > 1) {
+            MsgSendEverbookC2S.isSingleplayer = false //for handling everbook size restrictions if someone joins a LAN world
         }
     }
 

@@ -111,38 +111,37 @@ object OpCloseGate : VarargSpellAction {
         }
     }
 
+    // check whether this entity is above the base of a stack composed entirely of gated entities
+    fun withinGatedStack(toCheck: Entity, allTeleportees: Set<Entity>): Boolean {
+        var base = toCheck
+        var movedDown = false
+        while (base.isPassenger() && allTeleportees.contains(base.vehicle)) {
+            movedDown = true
+            base = base.vehicle!!
+        }
+        return movedDown && base.indirectPassengers.all { allTeleportees.contains(it) }
+    }
+
     fun teleportRespectSticky(teleportee: Entity, allTeleportees: Set<Entity>, delta: Vec3) {
-        val base = teleportee.rootVehicle
-
-        val playersToUpdate = mutableListOf<ServerPlayer>()
-        val indirect = base.indirectPassengers
-
+        // the entire stack of passengers above the teleportee
+        val indirect = teleportee.indirectPassengers
+        
         val allGated = indirect.all { allTeleportees.contains(it) }
-        val sticky = indirect.any { it.type.`is`(HexTags.Entities.STICKY_TELEPORTERS) }
-        val cannotSticky = indirect.none { it.type.`is`(HexTags.Entities.CANNOT_TELEPORT) }
-        if (sticky && cannotSticky)
-            return
-
-        if (cannotSticky || !allGated) {
-            // Break it into two stacks
-            teleportee.stopRiding()
+        val sticky = teleportee.type.`is`(HexTags.Entities.STICKY_TELEPORTERS)
+        val cannotSticky = indirect.any { it.type.`is`(HexTags.Entities.CANNOT_TELEPORT) }
+        
+        // dismount immediate passengers so they don't get brought along:
+        // - if neither of the take-the-passengers conditions is true
+        // - if any entity in the passenger stack is in the teleport blacklist
+        if ((!sticky && !allGated) || cannotSticky) {
             teleportee.passengers.forEach(Entity::stopRiding)
-            teleportee.setPos(teleportee.position().add(delta))
-            if (teleportee is ServerPlayer) {
-                playersToUpdate.add(teleportee)
-            }
-        } else {
-            // this handles teleporting the passengers
-            val target = base.position().add(delta)
-            base.teleportTo(target.x, target.y, target.z)
-            indirect
-                    .filterIsInstance<ServerPlayer>()
-                    .forEach(playersToUpdate::add)
         }
 
-        for (player in playersToUpdate) {
-            player.connection.resetPosition()
-            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgBlinkS2C(delta))
+        // when doing a stack teleport, only need to dismount+teleport the bottom entity
+        if (!withinGatedStack(teleportee, allTeleportees)) {
+            val target = teleportee.position().add(delta)
+            teleportee.stopRiding()
+            teleportee.teleportTo(target.x, target.y, target.z)
         }
     }
 }

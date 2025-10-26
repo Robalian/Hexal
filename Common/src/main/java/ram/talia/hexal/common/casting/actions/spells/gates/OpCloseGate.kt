@@ -111,37 +111,36 @@ object OpCloseGate : VarargSpellAction {
         }
     }
 
-    // check whether this entity is above the base of a stack composed entirely of gated entities
-    fun withinGatedStack(toCheck: Entity, allTeleportees: Set<Entity>): Boolean {
-        var base = toCheck
-        var movedDown = false
-        while (base.isPassenger() && allTeleportees.contains(base.vehicle)) {
-            movedDown = true
-            base = base.vehicle!!
-        }
-        return movedDown && base.indirectPassengers.all { allTeleportees.contains(it) }
-    }
-
     fun teleportRespectSticky(teleportee: Entity, allTeleportees: Set<Entity>, delta: Vec3) {
-        // the entire stack of passengers above the teleportee
-        val indirect = teleportee.indirectPassengers
-        
-        val allGated = indirect.all { allTeleportees.contains(it) }
-        val sticky = teleportee.type.`is`(HexTags.Entities.STICKY_TELEPORTERS)
-        val cannotSticky = indirect.any { it.type.`is`(HexTags.Entities.CANNOT_TELEPORT) }
-        
-        // dismount immediate passengers so they don't get brought along:
-        // - if neither of the take-the-passengers conditions is true
-        // - if any entity in the passenger stack is in the teleport blacklist
-        if ((!sticky && !allGated) || cannotSticky) {
-            teleportee.passengers.forEach(Entity::stopRiding)
-        }
+        // pop off any riders in the stack that shouldn't get teleported
+        recursiveDismount(teleportee, allTeleportees)
 
-        // when doing a stack teleport, only need to dismount+teleport the bottom entity
-        if (!withinGatedStack(teleportee, allTeleportees)) {
+        // only dismount+teleport if nothing below you is getting teleported
+        if (!aboveStackRoot(teleportee, allTeleportees)) {
             val target = teleportee.position().add(delta)
             teleportee.stopRiding()
             teleportee.teleportTo(target.x, target.y, target.z)
+        }
+    }
+
+    fun recursiveDismount(base: Entity, allTeleportees: Set<Entity>) {
+        val sticky = base.type.`is`(HexTags.Entities.STICKY_TELEPORTERS)
+        for (passenger in base.passengers) {
+            if (passenger.type.`is`(HexTags.Entities.CANNOT_TELEPORT) || (!sticky && !allTeleportees.contains(passenger))) {
+                passenger.stopRiding()
+            } else {
+                recursiveDismount(passenger, allTeleportees)
+            }
+        }
+    }
+
+    fun aboveStackRoot(toCheck: Entity, allTeleportees: Set<Entity>): Boolean {
+        val lowerVehicle = toCheck.vehicle?.vehicle
+        val vehicleGated = allTeleportees.contains(toCheck.vehicle)
+        if (lowerVehicle == null) {
+            return vehicleGated
+        } else {
+            return vehicleGated || (allTeleportees.contains(lowerVehicle) && lowerVehicle.type.`is`(HexTags.Entities.STICKY_TELEPORTERS))
         }
     }
 }

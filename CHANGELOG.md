@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## `0.3.0` - 2025-10-14
 
 ### Added
 
@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Everbook data is now compressed before sending it to the server to minimize packet size related issues.
   - Added a 10-second timer (configurable) to save the Everbook to disk, rather than only saving on logout.
   - Macros now play a single context-appropriate sound when drawn, rather than playing the sounds of potentially hundreds of patterns at once. 
+- Added a configurable server-side Everbook size limit, by beholderface in [#177](https://github.com/FallingColors/Hexal/pull/177).
 - Updated zh_cn translations, by ChuijkYahus in [#115](https://github.com/FallingColors/Hexal/pull/115), [#132](https://github.com/FallingColors/Hexal/pull/132), and [#170](https://github.com/FallingColors/Hexal/pull/170).
 
 ### Fixed

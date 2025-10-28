@@ -19,7 +19,7 @@ object OpMarkGate : SpellAction {
         val entity = args.getEntity(1, argc)
         env.assertEntityInRange(entity)
 
-        if (!entity.canChangeDimensions() || entity.type.`is`(HexTags.Entities.CANNOT_TELEPORT))
+        if (entity.type.`is`(HexTags.Entities.CANNOT_TELEPORT))
             throw MishapImmuneEntity(entity)
 
 

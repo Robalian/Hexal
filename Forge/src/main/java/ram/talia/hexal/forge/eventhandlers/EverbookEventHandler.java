@@ -80,6 +80,10 @@ public class EverbookEventHandler {
 	@SubscribeEvent
 	public static void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
 		ServerPlayer player = (ServerPlayer) event.getEntity();
+
+		if (player.server.getPlayerCount() > 1){
+			MsgSendEverbookC2S.isSingleplayer = false; //for handling everbook size restrictions if someone joins a LAN world
+		}
 		
 		if (!everbooks.containsKey(player.getUUID()))
 			everbooks.put(player.getUUID(), new Everbook(player.getUUID()));

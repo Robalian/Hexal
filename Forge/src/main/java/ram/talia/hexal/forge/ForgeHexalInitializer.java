@@ -3,10 +3,13 @@ package ram.talia.hexal.forge;
 import at.petrak.hexcasting.common.lib.HexRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.gametest.framework.GameTestServer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -21,6 +24,7 @@ import ram.talia.hexal.common.lib.*;
 import ram.talia.hexal.common.lib.HexalFeatures;
 import ram.talia.hexal.common.lib.hex.HexalArithmetics;
 import ram.talia.hexal.common.lib.hex.HexalIotaTypes;
+import ram.talia.hexal.common.network.MsgSendEverbookC2S;
 import ram.talia.hexal.common.recipe.HexalRecipeSerializers;
 import ram.talia.hexal.common.recipe.HexalRecipeTypes;
 import ram.talia.hexal.forge.datagen.HexalForgeDataGenerators;
@@ -83,6 +87,11 @@ public class ForgeHexalInitializer {
 				 //noinspection Convert2MethodRef
 				 ForgePacketHandler.init();
 			 }));
+
+		evBus.addListener((ServerStartedEvent event)->{
+			//rule them out like this so that it doesn't try to access client-only stuff on a dedicated server
+            MsgSendEverbookC2S.isSingleplayer = !(event.getServer() instanceof DedicatedServer || event.getServer() instanceof GameTestServer);
+		});
 		
 
 		// We have to do these at some point when the registries are still open

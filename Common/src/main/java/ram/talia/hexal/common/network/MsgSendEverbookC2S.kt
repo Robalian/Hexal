@@ -18,6 +18,7 @@ import ram.talia.hexal.xplat.IXplatAbstractions
 data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 	private var wasTooBig = false
 	private var somethingWeirdHappened = false
+	private var amountOverLimit = -1L
 	override fun serialize(buf: FriendlyByteBuf) {
 		val bookNbt = everbook.serialiseToNBT()
 		val bytes = bookNbt.toCompressedBytes()
@@ -34,9 +35,10 @@ data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 			if (wasTooBig){
 				HexalAPI.LOGGER.info("Player ${sender.displayName.string}'s everbook data exceeded the configured size limit of ${HexalConfig.server.everbookMaxSize}")
 				sender.sendSystemMessage(Component.translatable("hexal.everbook.sizewarning", HexalConfig.server.everbookMaxSize))
-			}
-			if (somethingWeirdHappened){
+			} else if (somethingWeirdHappened){
 				sender.sendSystemMessage(Component.translatable("hexal.everbook.unexpectederror"))
+			} else if (isSingleplayer && amountOverLimit > 0 && server.playerCount <= 1){
+				sender.sendSystemMessage(Component.translatable("hexal.everbook.overlimitsingleplayer", HexalConfig.server.everbookMaxSize, amountOverLimit))
 			}
 		}
 	}
@@ -45,16 +47,24 @@ data class MsgSendEverbookC2S(val everbook: Everbook) : IMessage {
 		@JvmField
 		val ID: ResourceLocation = HexalAPI.modLoc("sendever")
 
+		@JvmField var isSingleplayer = false
+
 		@JvmStatic
 		fun deserialise(buffer: ByteBuf): MsgSendEverbookC2S {
 			val buf = FriendlyByteBuf(buffer)
 			val uuid = buf.readUUID()
 			val bytes = buf.readByteArray()
 			var packet = MsgSendEverbookC2S(Everbook(uuid, mutableMapOf(), listOf()))
+			val maxSize = if (isSingleplayer) {
+				Long.MAX_VALUE
+			} else {
+				HexalConfig.server.everbookMaxSize
+			}
 			try {
-				val decompressed = bytes.decompressToNBT(HexalConfig.server.everbookMaxSize)
+				val decompressed = bytes.decompressToNBT(maxSize)
 				HexalAPI.LOGGER.info("Deserializing everbook data of size ${bytes.size} decompressed to size ${decompressed.sizeInBytes()}")
 				packet = MsgSendEverbookC2S(Everbook.fromNbt(decompressed))
+				packet.amountOverLimit = decompressed.sizeInBytes() - HexalConfig.server.everbookMaxSize
 			} catch (_ : NbtSizeException){
 				packet.wasTooBig = true
 			} catch (e : Exception){

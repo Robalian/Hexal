@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.3.1` - 2025-10-30
+
+### Changed
+
+- Updated zh_cn translations, by ChuijkYahus in [#179](https://github.com/FallingColors/Hexal/pull/179).
+- Disabled the everbook size limit in singleplayer, by beholderface in [#185](https://github.com/FallingColors/Hexal/pull/185).
+
+### Fixed
+
+- Fixed several bugs with gates, by Robotgiggle in [#184](https://github.com/FallingColors/Hexal/pull/184):
+  - Removed arbitrary 32k block range limit.
+  - Fixed gates not working for entities with passengers.
+  - Fixed a crash caused by teleport-related changes in Hex Casting 0.11.3.
+  - Improved behaviour when teleporting stacks of entities with gates.
+
 ## `0.3.0` - 2025-10-14
 
 ### Added

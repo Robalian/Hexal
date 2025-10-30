@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Fixed gates not working for entities with passengers.
   - Fixed a crash caused by teleport-related changes in Hex Casting 0.11.3.
   - Improved behaviour when teleporting stacks of entities with gates.
+- Development: Removed `hexal.serialization-hooks` dependency on Fabric.
 
 ## `0.3.0` - 2025-10-14
 

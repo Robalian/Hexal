@@ -9,7 +9,6 @@ import at.petrak.hexcasting.api.casting.eval.env.PlayerBasedCastEnv
 import at.petrak.hexcasting.api.casting.getVec3
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.mishaps.MishapBadLocation
-import at.petrak.hexcasting.common.msgs.MsgBlinkS2C
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
@@ -77,10 +76,7 @@ object OpCloseGate : VarargSpellAction {
         fun teleport(teleportee: Entity, allTeleportees: Set<Entity>, delta: Vec3, env: CastingEnvironment) {
             val distance = delta.length()
 
-            // TODO make this not a magic number (config?)
-            if (distance < 32768.0) {
-                teleportRespectSticky(teleportee, allTeleportees, delta)
-            }
+            teleportRespectSticky(teleportee, allTeleportees, delta)
 
             if (teleportee is ServerPlayer && teleportee == env.caster && distance < PlayerBasedCastEnv.AMBIT_RADIUS && dropItems) {
                 // Drop items conditionally, based on distance teleported.
@@ -116,37 +112,35 @@ object OpCloseGate : VarargSpellAction {
     }
 
     fun teleportRespectSticky(teleportee: Entity, allTeleportees: Set<Entity>, delta: Vec3) {
-        val base = teleportee.rootVehicle
+        // pop off any riders in the stack that shouldn't get teleported
+        recursiveDismount(teleportee, allTeleportees)
 
-        val playersToUpdate = mutableListOf<ServerPlayer>()
-        val indirect = base.indirectPassengers
-
-        val allGated = indirect.all { allTeleportees.contains(it) }
-        val sticky = indirect.any { it.type.`is`(HexTags.Entities.STICKY_TELEPORTERS) }
-        val cannotSticky = indirect.none { it.type.`is`(HexTags.Entities.CANNOT_TELEPORT) }
-        if (sticky && cannotSticky)
-            return
-
-        if (cannotSticky || !allGated) {
-            // Break it into two stacks
+        // only dismount+teleport if nothing below you is getting teleported
+        if (!aboveStackRoot(teleportee, allTeleportees)) {
+            val target = teleportee.position().add(delta)
             teleportee.stopRiding()
-            teleportee.passengers.forEach(Entity::stopRiding)
-            teleportee.setPos(teleportee.position().add(delta))
-            if (teleportee is ServerPlayer) {
-                playersToUpdate.add(teleportee)
-            }
-        } else {
-            // this handles teleporting the passengers
-            val target = base.position().add(delta)
-            base.teleportTo(target.x, target.y, target.z)
-            indirect
-                    .filterIsInstance<ServerPlayer>()
-                    .forEach(playersToUpdate::add)
+            teleportee.teleportTo(target.x, target.y, target.z)
         }
+    }
 
-        for (player in playersToUpdate) {
-            player.connection.resetPosition()
-            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgBlinkS2C(delta))
+    fun recursiveDismount(base: Entity, allTeleportees: Set<Entity>) {
+        val sticky = base.type.`is`(HexTags.Entities.STICKY_TELEPORTERS)
+        for (passenger in base.passengers) {
+            if (passenger.type.`is`(HexTags.Entities.CANNOT_TELEPORT) || (!sticky && !allTeleportees.contains(passenger))) {
+                passenger.stopRiding()
+            } else {
+                recursiveDismount(passenger, allTeleportees)
+            }
+        }
+    }
+
+    fun aboveStackRoot(toCheck: Entity, allTeleportees: Set<Entity>): Boolean {
+        val lowerVehicle = toCheck.vehicle?.vehicle
+        val vehicleGated = allTeleportees.contains(toCheck.vehicle)
+        if (lowerVehicle == null) {
+            return vehicleGated
+        } else {
+            return vehicleGated || (allTeleportees.contains(lowerVehicle) && lowerVehicle.type.`is`(HexTags.Entities.STICKY_TELEPORTERS))
         }
     }
 }

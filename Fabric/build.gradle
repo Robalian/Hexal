@@ -82,7 +82,9 @@ dependencies {
     modImplementation("at.petra-k.hexcasting:hexcasting-fabric-$minecraftVersion:$hexcastingVersion") {
         exclude module: "phosphor"
     }
-    modImplementation "ram.talia.moreiotas:moreiotas-fabric-$minecraftVersion:$moreIotasVersion"
+    modImplementation("ram.talia.moreiotas:moreiotas-fabric-$minecraftVersion:$moreIotasVersion") {
+        exclude module: "serialization-hooks"
+    }
     modImplementation "vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FABRIC-SNAPSHOT"
     modImplementation "com.samsthenerd.inline:inline-fabric:$minecraftVersion-$inlineVersion"
 
@@ -99,8 +101,7 @@ dependencies {
     modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-item:$cardinalComponentsVersion"
     modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-block:$cardinalComponentsVersion"
 
-    modImplementation "$modID:serialization-hooks:$serializationHooksVersion"
-    include "$modID:serialization-hooks:$serializationHooksVersion"
+    modLocalRuntime "io.github.tropheusj:serialization-hooks:$serializationHooksVersion"
 
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:$mixinExtrasVersion")))
 

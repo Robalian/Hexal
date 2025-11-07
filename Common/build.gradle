@@ -37,8 +37,8 @@ dependencies {
     compileOnly "ram.talia.moreiotas:moreiotas-common-$minecraftVersion:$moreIotasVersion"
     compileOnly "vazkii.patchouli:Patchouli-xplat:$minecraftVersion-$patchouliVersion-SNAPSHOT"
     compileOnly "software.bernie.geckolib:geckolib-forge-$minecraftVersion:$geckolibVersion"
-    compileOnly "gay.object.hexdebug:hexdebug-core-common-mojmap:$hexdebugVersion"
-    compileOnly "gay.object.hexdebug:hexdebug-common-mojmap:$hexdebugVersion"
+    compileOnly "gay.object.hexdebug:hexdebug-core-common-mojmap:$hexdebugVersion+$minecraftVersion-SNAPSHOT"
+    compileOnly "gay.object.hexdebug:hexdebug-common-mojmap:$hexdebugVersion+$minecraftVersion-SNAPSHOT"
 
     testImplementation "at.petra-k.paucal:paucal-common-$minecraftVersion:$paucalVersion"
     testImplementation "at.petra-k.hexcasting:hexcasting-common-$minecraftVersion:$hexcastingVersion"

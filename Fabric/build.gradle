@@ -130,8 +130,8 @@ dependencies {
 
     // include hexdebug-core in production so we can use the classes directly in code without loaded mod checks
     // and put full hexdebug in the dev env so we can test the interop
-    modImplementation(include("gay.object.hexdebug:hexdebug-core-fabric:$hexdebugVersion"))
-    modLocalRuntime("gay.object.hexdebug:hexdebug-fabric:$hexdebugVersion")
+    modImplementation(include("gay.object.hexdebug:hexdebug-core-fabric:$hexdebugVersion+$minecraftVersion-SNAPSHOT"))
+    modLocalRuntime("gay.object.hexdebug:hexdebug-fabric:$hexdebugVersion+$minecraftVersion-SNAPSHOT")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

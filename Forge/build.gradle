@@ -195,12 +195,12 @@ dependencies {
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:$curiosVersion+$minecraftVersion:api")
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:$curiosVersion+$minecraftVersion")
 
-    implementation fg.deobf("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion+$minecraftVersion-SNAPSHOT")
-    jarJar("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion+$minecraftVersion-SNAPSHOT") {
+    implementation fg.deobf("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion+$minecraftVersion")
+    jarJar("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion+$minecraftVersion") {
         transitive = false // otherwise it tries to JiJ Hex Casting, for some reason
         jarJar.ranged(it, "[$hexdebugVersion,)")
     }
-    runtimeOnly fg.deobf("gay.object.hexdebug:hexdebug-forge:$hexdebugVersion+$minecraftVersion-SNAPSHOT")
+    runtimeOnly fg.deobf("gay.object.hexdebug:hexdebug-forge:$hexdebugVersion+$minecraftVersion")
     runtimeOnly fg.deobf("gay.object.ioticblocks:ioticblocks-forge:$ioticBlocksVersion")
     runtimeOnly fg.deobf("dev.architectury:architectury-forge:$architecturyVersion")
 

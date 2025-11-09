@@ -22,6 +22,8 @@ apply plugin: 'org.spongepowered.mixin'
 
 archivesBaseName = getArtifactID("forge")
 
+jarJar.enable()
+
 minecraft {
     mappings channel: 'official', version: minecraftVersion
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -193,6 +195,15 @@ dependencies {
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:$curiosVersion+$minecraftVersion:api")
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:$curiosVersion+$minecraftVersion")
 
+    implementation fg.deobf("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion+$minecraftVersion")
+    jarJar("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion+$minecraftVersion") {
+        transitive = false // otherwise it tries to JiJ Hex Casting, for some reason
+        jarJar.ranged(it, "[$hexdebugVersion,)")
+    }
+    runtimeOnly fg.deobf("gay.object.hexdebug:hexdebug-forge:$hexdebugVersion+$minecraftVersion")
+    runtimeOnly fg.deobf("gay.object.ioticblocks:ioticblocks-forge:$ioticBlocksVersion")
+    runtimeOnly fg.deobf("dev.architectury:architectury-forge:$architecturyVersion")
+
     // Testing dependencies:
     testCompileOnly project(":Common")
 
@@ -246,8 +257,16 @@ task printSourceSetInformation(){
     }
 }
 
+tasks.jarJar {
+    archiveClassifier = ""
+}
+
+jar {
+    archiveClassifier = "slim"
+}
+
 tasks.register("ciArtifacts", Copy) {
-    from jar
+    from tasks.jarJar
     into rootProject.file("build/ciArtifacts")
 }
 
@@ -304,7 +323,7 @@ hexalModDependencies {
 }
 
 publishMods {
-    file = jar.archiveFile
+    file = tasks.jarJar.archiveFile
 }
 
 jar.finalizedBy('reobfJar')
@@ -313,6 +332,7 @@ setupJar(this)
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            artifact tasks.jarJar
             // ForgeGradle exports (broken) remapped dependencies, so just remove all of them
             // https://github.com/VazkiiMods/Botania/blob/87ef25381381f06a1f0f106b896b420956d52bca/Forge/build.gradle#L179
             pom.withXml {

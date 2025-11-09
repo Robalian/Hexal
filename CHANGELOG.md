@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [UNRELEASED]
+
+### Added
+
+- Added support for debugging cyclic wisps with [HexDebug](https://modrinth.com/mod/hexdebug)!
+
+### Changed
+
+- Increased minimum dependency versions:
+  - Fabric Loader: `0.16`
+  - Fabric Language Kotlin: `1.10.18+kotlin.1.9.22`
+
 ## `0.3.1` - 2025-10-30
 
 ### Changed

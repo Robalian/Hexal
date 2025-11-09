@@ -316,7 +316,7 @@ abstract class BaseCastingWisp(entityType: EntityType<out BaseCastingWisp>, worl
 	/**
 	 * Returns true if there are no triggers limiting when the wisp can cast, false otherwise
 	 */
-	fun canScheduleCast(): Boolean {
+	open fun canScheduleCast(): Boolean {
 //		HexalAPI.LOGGER.info("active trigger is $activeTrigger, shouldRemove: ${activeTrigger?.shouldRemoveTrigger(this)}, shouldTrigger: ${activeTrigger?.shouldTrigger(this)}")
 		if (activeTrigger?.shouldRemoveTrigger(this) == true)
 			activeTrigger = null

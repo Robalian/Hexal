@@ -46,7 +46,7 @@ object OpConsumeWisp : SpellAction {
 
 	private data class Spell(val consumed: IMediaEntity<*>) : RenderedSpell {
 		override fun cast(env: CastingEnvironment) {
-			if (env is WispCastEnv) {
+			if (env is WispCastEnv && env.wisp != consumed) {
 				env.wisp.addMedia(19 * consumed.media / 20)
 			} else {
 				val ext = env.getExtension(ExtractMediaHook.KEY)

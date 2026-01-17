@@ -30,8 +30,9 @@ object OpConsumeWisp : SpellAction {
 
 		HexalAPI.LOGGER.debug("consumer: {}, {}", consumer, consumed.fightConsume(consumer))
 
+		val selfConsume = consumer.map({wisp -> wisp == consumed},{false})
 		val cost = when (consumed.fightConsume(consumer)) {
-			false  -> HexalConfig.server.consumeWispOwnCost
+			false  -> if (selfConsume) 0 else HexalConfig.server.consumeWispOwnCost
 			true   -> (HexalConfig.server.consumeWispOthersCostPerMedia * consumed.media).toLong()
 		}
 
@@ -47,7 +48,7 @@ object OpConsumeWisp : SpellAction {
 	private data class Spell(val consumed: IMediaEntity<*>) : RenderedSpell {
 		override fun cast(env: CastingEnvironment) {
 			if (env is WispCastEnv) {
-				env.wisp.addMedia(19 * consumed.media / 20)
+				if (env.wisp != consumed) env.wisp.addMedia(19 * consumed.media / 20)
 			} else {
 				val ext = env.getExtension(ExtractMediaHook.KEY)
 				if (ext == null) {
